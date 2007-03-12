@@ -1,0 +1,57 @@
+[
+    {
+        "model" : "jellyroll.photo",
+        "pk" : "1",
+        "fields" : {
+            "server_id"      : "123",
+            "secret"         : "1234567890",
+            "taken_by"       : "jacobian",
+            "cc_license"     : "http://creativecommons.org/licenses/by/2.0/",
+            "title"          : "Photo taken by me"
+        }
+    },
+    {
+        "model" : "jellyroll.photo",
+        "pk" : "2",
+        "fields" : {
+            "server_id"      : "123",
+            "secret"         : "1234567890",
+            "taken_by"       : "someoneelse",
+            "cc_license"     : "http://creativecommons.org/licenses/by/2.0/",
+            "title"          : "Photo taken by someone else with a BY license"
+        }
+    },
+    {
+        "model" : "jellyroll.photo",
+        "pk" : "3",
+        "fields" : {
+            "server_id"      : "123",
+            "secret"         : "1234567890",
+            "taken_by"       : "someoneelse",
+            "cc_license"     : "",
+            "title"          : "Photo taken by someone else with no license"
+        }
+    },
+    {
+        "model" : "jellyroll.photo",
+        "pk" : "4",
+        "fields" : {
+            "server_id"      : "123",
+            "secret"         : "1234567890",
+            "taken_by"       : "someoneelse",
+            "cc_license"     : "http://creativecommons.org/licenses/by-nc-nd/2.0/",
+            "title"          : "Photo taken by someone else with a NC-ND license"
+        }
+    },
+    {
+        "model" : "jellyroll.photo",
+        "pk" : "5",
+        "fields" : {
+            "server_id"      : "123",
+            "secret"         : "1234567890",
+            "taken_by"       : "someoneelse",
+            "cc_license"     : "http://creativecommons.org/licenses/by-sa/2.0/",
+            "title"          : "Photo taken by someone else with an SA license"
+        }
+    }
+]
