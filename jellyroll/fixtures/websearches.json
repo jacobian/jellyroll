@@ -1,0 +1,19 @@
+[
+    {
+        "model" : "jellyroll.websearch",
+        "pk" : "1",
+        "fields" : {
+            "engine" : 1,
+            "query" : "test"
+        }
+    },
+    {
+        "model" : "jellyroll.websearchresult",
+        "pk" : "1",
+        "fields" : {
+            "search" : 1,
+            "title" : "Test Central Home",
+            "url" : "http://www.test.com/"
+        }
+    }
+]

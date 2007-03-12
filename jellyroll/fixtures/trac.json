@@ -1,0 +1,21 @@
+[
+    {
+        "model" : "jellyroll.tracproject",
+        "pk" : "1",
+        "fields" : {
+            "name" : "Django",
+            "slug" : "django",
+            "url" : "http://code.djangoproject.com/",
+            "author_filter" : "jacob"
+        }
+    },
+    {
+        "model" : "jellyroll.traccommit",
+        "pk" : "1",
+        "fields" : {
+            "project" : 1,
+            "revision" : 42,
+            "message" : "Found the meaning of life."
+        }
+    }
+]
