@@ -4,9 +4,9 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.template.loader import render_to_string
+from django.utils import simplejson, text
 from jellyroll.managers import ItemManager
 from tagging.fields import TagField
-from django.utils import simplejson, text
 
 class Item(models.Model):
     """

@@ -23,7 +23,10 @@ class ItemManager(models.Manager):
             if reconnect:
                 dispatcher.connect(self.create_or_update, signal=signals.post_save, sender=type(instance))
         
-        # Check to see if the timestamp is being updated.
+        # Check to see if the timestamp is being updated, possibly pulling
+        # the timestamp from the instance.
+        if hasattr(instance, "timestamp"):
+            timestamp = instance.timestamp
         if timestamp is None:
             update_timestamp = False
             timestamp = datetime.datetime.now()

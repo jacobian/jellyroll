@@ -17,11 +17,12 @@ def main(argv):
         print_providers(available_providers)
         sys.exit(0)
     
-    for provider in options.providers:
-        if provider not in available_providers:
-            print "Invalid provider: %r" % provider
-            print_providers(available_providers)
-            sys.exit(0)
+    if options.providers:
+        for provider in options.providers:
+            if provider not in available_providers:
+                print "Invalid provider: %r" % provider
+                print_providers(available_providers)
+                sys.exit(0)
     
     logging.basicConfig(level=options.level, format="%(name)s: %(levelname)s: %(message)s")
     jellyroll.providers.update(options.providers)
