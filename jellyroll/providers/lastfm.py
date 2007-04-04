@@ -60,7 +60,10 @@ def _tags_for_track(artist_name, track_name):
     tags = set()
     for url in urls:
         log.debug("Fetching tags from %r", url)
-        xml = utils.getxml(url)
+        try:
+            xml = utils.getxml(url)
+        except utils.HttpError(408):
+            return ""
         for t in xml.getiterator("tag"):
             count = utils.safeint(t.find("count").text)
             if count >= getattr(settings, 'LASTFM_TAG_USAGE_THRESHOLD', 15):

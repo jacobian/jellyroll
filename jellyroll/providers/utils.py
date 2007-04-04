@@ -26,14 +26,23 @@ except ImportError:
     
 def getxml(url, **kwargs):
     """Fetch and parse some XML. Returns an ElementTree"""
-    return ET.fromstring(fetch_resource(url, **kwargs))
+    xml = fetch_resource(url, **kwargs)
+    return ET.fromstring(xml)
     
 def getjson(url, **kwargs):
     """Fetch and parse some JSON. Returns the deserialized JSON."""
-    return simplejson.loads(fetch_resource(url, **kwargs))
+    json = fetch_resource(url, **kwargs)
+    return simplejson.loads(json)
 
-class Http503(Exception):
-    pass
+class _HttpError(object, Exception):
+    def __init__(self, code, why):
+        self.code = code
+        self.why = why        
+    def __str__(self):
+        return "Http %s: %s" % (self.code, self.why)
+        
+def HttpError(code):
+    return  type("Http%s" % code, (_HttpError,), {"__init__": lambda self, why: _HttpError.__init__(self, code, why)})
 
 def fetch_resource(url, method="GET", body=None, username=None, password=None, headers=None):
     h = httplib2.Http(timeout=15)
@@ -42,8 +51,8 @@ def fetch_resource(url, method="GET", body=None, username=None, password=None, h
     if headers is None:
         headers = DEFAULT_HTTP_HEADERS.copy()
     response, content = h.request(url, method, body, headers)
-    if response.status == 503:
-        raise Http503()
+    if response.status != 200:
+        raise HttpError(code)(why)
     return content
     
 #

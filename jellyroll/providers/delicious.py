@@ -43,7 +43,7 @@ class DeliciousClient(object):
         while xml is None:
             try:
                 xml = utils.getxml(url, username=self.username, password=self.password)
-            except utils.Http503:
+            except utils.HttpError(503):
                 log.debug("503 fetching url; retry in %s seconds." % delay)
                 time.sleep(delay)
                 delay *= 2

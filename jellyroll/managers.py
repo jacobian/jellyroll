@@ -3,6 +3,7 @@ from django.db import models
 from django.db.models import signals
 from django.dispatch import dispatcher
 from django.contrib.contenttypes.models import ContentType
+from tagging.fields import TagField
 
 class ItemManager(models.Manager):
     def create_or_update(self, instance, timestamp=None, tags="", source="INTERACTIVE", source_id=""):
@@ -23,6 +24,10 @@ class ItemManager(models.Manager):
             if reconnect:
                 dispatcher.connect(self.create_or_update, signal=signals.post_save, sender=type(instance))
         
+        # Make sure the item "should" be registered.
+        if not getattr(instance, "jellyrollable", True):
+            return
+        
         # Check to see if the timestamp is being updated, possibly pulling
         # the timestamp from the instance.
         if hasattr(instance, "timestamp"):
@@ -32,6 +37,13 @@ class ItemManager(models.Manager):
             timestamp = datetime.datetime.now()
         else:
             update_timestamp = True
+            
+        # Ditto for tags.
+        if not tags:
+            for f in instance._meta.fields:
+                if isinstance(f, TagField):
+                    tags = getattr(instance, f.attname)
+                    break
         
         # Create the Item object.
         ctype = ContentType.objects.get_for_model(instance)

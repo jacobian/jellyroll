@@ -15,12 +15,7 @@ class BookmarkTest(TestCase):
         self.assertEqual(i.url, i.object.url)
         self.assertEqual(i.text_snippet, str(i.object))
         self.assert_(i.html_snippet.startswith('<div class="jellyroll-item">'))
-    
-    def testTags(self):
-        i = Item.objects.get(content_type=CT(Bookmark), object_id=1)
-        i.tags = "foo bar"
-        self.assertEqual(i.tags, "bar foo")
-        
+            
 class TrackTest(TestCase):
     fixtures = ["tracks.json"]
         
@@ -28,7 +23,7 @@ class TrackTest(TestCase):
         i = Item.objects.get(content_type=CT(Track), object_id=1)
         self.assertEqual(str(i), "Track: Outkast - The Train (feat. Scar & Sleepy Brown)")
         i.tags = "baz bar"
-        self.assertEqual(i.tags, "bar baz")
+        self.assertEqual(i.tags, "baz bar")
         
 class PhotosTest(TestCase):
     fixtures = ["photos.json"]     
