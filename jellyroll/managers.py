@@ -6,6 +6,10 @@ from django.contrib.contenttypes.models import ContentType
 from tagging.fields import TagField
 
 class ItemManager(models.Manager):
+    
+    def __init__(self):
+        self.models_by_name = {}
+    
     def create_or_update(self, instance, timestamp=None, tags="", source="INTERACTIVE", source_id=""):
         """
         Create or update an Item from some instace.
@@ -37,7 +41,7 @@ class ItemManager(models.Manager):
             timestamp = datetime.datetime.now()
         else:
             update_timestamp = True
-            
+                    
         # Ditto for tags.
         if not tags:
             for f in instance._meta.fields:
@@ -71,6 +75,7 @@ class ItemManager(models.Manager):
         """
         Follow a particular model class, updating associated Items automatically.
         """
+        self.models_by_name[model.__name__.lower()] = model
         dispatcher.connect(self.create_or_update, signal=signals.post_save, sender=model)
         
     def get_for_model(self, model):

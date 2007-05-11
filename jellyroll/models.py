@@ -54,8 +54,6 @@ class Item(models.Model):
         self.object_str = str(self.object)
         if hasattr(self.object, "url"):
             self.url = self.object.url
-        if hasattr(self.object, "timestamp"):
-            self.timestamp = self.object.timestamp
         super(Item, self).save()
 
 class Bookmark(models.Model):
@@ -118,7 +116,7 @@ class Photo(models.Model):
     
     # Rights metadata
     taken_by    = models.CharField(maxlength=100, blank=True)
-    cc_license  = models.URLField(choices=CC_LICENSES)
+    cc_license  = models.URLField(blank=True, choices=CC_LICENSES)
     
     # Main metadata
     title           = models.CharField(maxlength=250)
@@ -150,6 +148,10 @@ class Photo(models.Model):
     @property
     def url(self):
         return "http://www.flickr.com/photos/%s/%s/" % (self.taken_by, self.photo_id)
+        
+    @property
+    def timestamp(self):
+        return self.date_uploaded
     
     ### Image URLs ###
     

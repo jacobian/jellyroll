@@ -3,6 +3,7 @@ from jellyroll.models import *
 from tagging.models import Tag
 from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
+from django import template
 
 # shortcut
 CT = ContentType.objects.get_for_model
@@ -14,7 +15,6 @@ class BookmarkTest(TestCase):
         i = Item.objects.get(content_type=CT(Bookmark), object_id=1)
         self.assertEqual(i.url, i.object.url)
         self.assertEqual(i.object_str, str(i.object))
-        self.assert_(i.html_snippet.startswith('<div class="jellyroll-item">'))
             
 class TrackTest(TestCase):
     fixtures = ["tracks.json"]
@@ -22,8 +22,6 @@ class TrackTest(TestCase):
     def testTrack(self):
         i = Item.objects.get(content_type=CT(Track), object_id=1)
         self.assertEqual(str(i), "Track: Outkast - The Train (feat. Scar & Sleepy Brown)")
-        i.tags = "baz bar"
-        self.assertEqual(i.tags, "baz bar")
         
 class PhotosTest(TestCase):
     fixtures = ["photos.json"]     
@@ -117,3 +115,12 @@ class ItemTest(TestCase):
     def testSorting(self):
         items = list(Item.objects.all())
         self.assertEqual(items, sorted(items, reverse=True))
+        
+    def testModelsByName(self):
+        self.assertEqual(Item.objects.models_by_name["bookmark"], Bookmark)
+        self.assertEqual(Item.objects.models_by_name["codecommit"], CodeCommit)
+        self.assertEqual(Item.objects.models_by_name["photo"], Photo)
+        self.assertEqual(Item.objects.models_by_name["track"], Track)
+        self.assertEqual(Item.objects.models_by_name["video"], Video)
+        self.assertEqual(Item.objects.models_by_name["websearch"], WebSearch)
+        
