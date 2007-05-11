@@ -12,20 +12,24 @@ class Item(models.Model):
     """
     A generic jellyroll item. Slightly denormalized for performance.
     """
+    
+    # Generic relation to the object.
     content_type = models.ForeignKey(ContentType)
     object_id = models.IntegerField()
     object = models.GenericForeignKey()
     
+    # "Standard" metadata each object provides.
     url = models.URLField(blank=True)
     timestamp = models.DateTimeField()
     tags = TagField()
     
-    source = models.CharField(maxlength=100, blank=True) # XXX add choices?
+    # Metadata about where the object "came from" -- used by data providers to
+    # figure out which objects to update when asked.
+    source = models.CharField(maxlength=100, blank=True)
     source_id = models.TextField(blank=True)
     
+    # Denormalized object __str__, for performance 
     object_str = models.TextField(blank=True)
-    text_snippet = models.TextField(blank=True)
-    html_snippet = models.TextField(blank=True)
     
     objects = ItemManager()
     
@@ -37,7 +41,7 @@ class Item(models.Model):
         date_hierarchy = 'timestamp'
         list_display = ('timestamp', 'object_str')
         list_filter = ('content_type', 'timestamp')
-        search_fields = ('object_str', 'text_snippet', 'tags')
+        search_fields = ('object_str', 'tags')
     
     def __str__(self):
         return "%s: %s" % (self.content_type.model_class().__name__, self.object_str)
@@ -46,20 +50,12 @@ class Item(models.Model):
         return cmp(self.timestamp, other.timestamp)
     
     def save(self):
-        # Save denormalized data for speediness
         ct = "%s_%s" % (self.content_type.app_label, self.content_type.model.lower())
         self.object_str = str(self.object)
-        self.text_snippet = render_to_string(
-            ["jellyroll/snippets/%s.txt" % ct, "jellyroll/snippets/item.txt"],
-            {"metadata" : self, "object" : self.object}
-        )
-        self.html_snippet = render_to_string(
-            ["jellyroll/snippets/%s.html" % ct, "jellyroll/snippets/item.html"],
-            {"metadata" : self, "object" : self.object}
-        )
         if hasattr(self.object, "url"):
             self.url = self.object.url
-        
+        if hasattr(self.object, "timestamp"):
+            self.timestamp = self.object.timestamp
         super(Item, self).save()
 
 class Bookmark(models.Model):

@@ -13,7 +13,7 @@ class BookmarkTest(TestCase):
     def testItemWorkage(self):
         i = Item.objects.get(content_type=CT(Bookmark), object_id=1)
         self.assertEqual(i.url, i.object.url)
-        self.assertEqual(i.text_snippet, str(i.object))
+        self.assertEqual(i.object_str, str(i.object))
         self.assert_(i.html_snippet.startswith('<div class="jellyroll-item">'))
             
 class TrackTest(TestCase):
