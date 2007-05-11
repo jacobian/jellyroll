@@ -1,6 +1,7 @@
 import urlparse
 import urllib
 from django.conf import settings
+from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.template.loader import render_to_string
@@ -16,7 +17,7 @@ class Item(models.Model):
     # Generic relation to the object.
     content_type = models.ForeignKey(ContentType)
     object_id = models.IntegerField()
-    object = models.GenericForeignKey()
+    object = generic.GenericForeignKey()
     
     # "Standard" metadata each object provides.
     url = models.URLField(blank=True)
