@@ -1,0 +1,18 @@
+{% extends "jellyroll/base.html" %}
+
+{# Example template for a the calendar day view #}
+
+{% block title %}Items in {{ day|date:"j F Y" }}{% endblock %}
+
+{% block content %}
+  <h1>Items {% if is_today %}today{% else %}on {{ day|date:"j F Y" }}{% endif %}</h1>
+  <p>
+    {% if previous %}<a href="{{ previous_link }}">&larr; {{ previous|date:"j F Y" }}</a>{% endif %}
+    {% if next %}<a href="{{ next_link }}">{{ next|date:"j F Y" }} &rarr;</a>{% endif %}
+  </p>
+  <ul>
+    {% for item in items %}
+      <li>{{ item }}</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "jellyroll/base.html" %}
+
+{# Example template for a the calendar month view #}
+
+{% block title %}Items in {{ month|date:"F Y" }}{% endblock %}
+
+{% block content %}
+  <h1>Items in {{ month|date:"F Y" }}</h1>
+  <p>
+    {% if previous %}<a href="{% url jellyroll_calendar_month previous.year,previous|date:"M"|lower %}">&larr; {{ previous|date:"F Y" }}</a>{% endif %}
+    {% if next %}<a href="{% url jellyroll_calendar_month next.year,next|date:"M"|lower %}">{{ next|date:"F Y" }} &rarr;</a>{% endif %}
+  </p>
+  <ul>
+    {% for item in items %}
+      <li>{{ item.timestamp|date:"F j" }}: {{ item }}</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

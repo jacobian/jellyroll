@@ -1,12 +1,12 @@
 import datetime
 import dateutil.parser
 from django import template
-from django.db.models import get_model
+from django.db import models
 from django.template.loader import render_to_string
 from django.contrib.contenttypes.models import ContentType
 
 # Hack until relative imports
-Item = get_model("jellyroll", "item")
+Item = models.get_model("jellyroll", "item")
 
 register = template.Library()
 
@@ -99,10 +99,13 @@ class JellyrenderNode(template.Node):
                 template_list.insert(0, using)
                 
         # Render content, and save to self.asvar if requested
-        rendered = render_to_string(template_list, {
+        context.push()
+        context.update({
             "item" : item,
             "object" : object
         })
+        rendered = render_to_string(template_list, context)
+        context.pop()
         if self.asvar:
             context[self.asvar] = rendered
             return ""

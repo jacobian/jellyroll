@@ -7,12 +7,12 @@
 {% block content %}
   <h1>Items in {{ year }}</h1>
   <p>
-    {% if previous %}<a href="{% url jellyroll_calendar_year previous %}">&larr; {{ previous }}</a>{% endif %}
-    {% if next %}<a href="{% url jellyroll_calendar_year next %}">{{ next }} &rarr;</a>{% endif %}
+    {% if previous %}<a href="{{ previous_link }}">&larr; {{ previous }}</a>{% endif %}
+    {% if next %}<a href="{{ next_link }}">{{ next }} &rarr;</a>{% endif %}
   </p>
   <ul>
     {% for item in items %}
-      <li>{{ item.timestamp|date:"r" }} / {{ item }}</li>
+      <li>{{ item.timestamp|date:"F j" }}: {{ item }}</li>
     {% endfor %}
   </ul>
 {% endblock %}
