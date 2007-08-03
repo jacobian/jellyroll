@@ -1,5 +1,8 @@
-import urlparse
+import pygments
+import pygments.lexers
+import pygments.formatters
 import urllib
+import urlparse
 from django.conf import settings
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
@@ -7,6 +10,7 @@ from django.db import models
 from django.template.loader import render_to_string
 from django.utils import simplejson, text
 from jellyroll.managers import ItemManager
+from jellyroll.utils import highlight_code
 from tagging.fields import TagField
 
 class Item(models.Model):
@@ -344,6 +348,88 @@ class CodeCommit(models.Model):
             return self.repository.public_changeset_template % self.revision
         return ""
 
+class Quote(models.Model):
+    """
+    Something someone said.
+    """
+    speaker = models.CharField(maxlength=200)   # XXX Fixme: replace with relation to Person
+    quote = models.TextField()
+    link = models.URLField(blank=True)
+    
+    class Admin:
+        list_display = ("speaker", "truncated_quote")
+        search_fields = ("speaker", "quote")
+        
+    def __str__(self):
+        return "%s: %s" % (self.speaker, self.truncated_quote())
+        
+    @property
+    def url(self):
+        if self.link:
+            return self.link
+        else:
+            return ""
+
+    def truncated_quote(self):
+        return text.truncate_words(self.quote, 30)
+
+class Chat(models.Model):
+    """
+    A conversation/chat
+    """
+    title = models.CharField(maxlength=200, blank=True)
+    
+    class Admin:
+        pass
+        
+    def __str__(self):
+        return self.title
+        
+class ChatItem(models.Model):
+    """
+    An item in a Chat
+    """
+    chat = models.ForeignKey(Chat, related_name="items", edit_inline=models.TABULAR, num_in_admin=10)
+    order = models.PositiveSmallIntegerField(core=True)
+    speaker = models.CharField(maxlength=200) # XXX fixme: replace with Person relation
+    quote = models.CharField(maxlength=200)
+    
+    class Meta:
+        ordering = ("chat", "order")
+        unique_together = [("chat", "order")]
+        
+    def __str__(self):
+        return "%s: %s" % (self.speaker, text.truncate_words(self.quote, 30))
+        
+def _get_language_choices():
+    """
+    Return language choices tuples based on available pygments lexers.
+    """
+    yield ("guess", "(Guess)")
+    for (name, aliases, filetypes, mimetypes) in sorted(pygments.lexers.get_all_lexers()):
+        yield (aliases[0], name)
+    
+class CodeSnippet(models.Model):
+    """
+    A bit of code.
+    """
+    title = models.CharField(maxlength=200)
+    language = models.CharField(maxlength=50, choices=_get_language_choices(), default="guess")
+    code = models.TextField()
+    notes = models.TextField(blank=True)
+    rendered = models.TextField(editable=False)
+    
+    class Admin:
+        list_display = ('title', 'language')
+        search_fields = ('title', 'language', 'notes')
+        
+    def __str__(self):
+        return self.title
+        
+    def save(self):
+        self.rendered = highlight_code(self.code, self.language)
+        super(CodeSnippet, self).save()
+
 # Register item objects to be "followed"
 Item.objects.follow_model(Bookmark)
 Item.objects.follow_model(Track)
@@ -351,3 +437,6 @@ Item.objects.follow_model(Photo)
 Item.objects.follow_model(WebSearch)
 Item.objects.follow_model(Video)
 Item.objects.follow_model(CodeCommit)
+Item.objects.follow_model(Quote)
+Item.objects.follow_model(Chat)
+Item.objects.follow_model(CodeSnippet)
