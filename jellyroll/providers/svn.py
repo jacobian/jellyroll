@@ -41,7 +41,8 @@ def _handle_revision(repository, r):
     log.debug("Handling [%s] from %s" % (r.revision.number, repository.url))
     ci, created = CodeCommit.objects.get_or_create(
         revision = r.revision.number,
-        defaults = {"repository": repository, "message": utils.safestr(r.message)}
+        repository = repository,
+        defaults = {"message": utils.safestr(r.message)}
     )
     return Item.objects.create_or_update(
         instance = ci, 
