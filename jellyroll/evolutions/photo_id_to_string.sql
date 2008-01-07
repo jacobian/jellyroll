@@ -1,0 +1,1 @@
+ALTER TABLE jellyroll_photo ALTER photo_id TYPE varchar(50);

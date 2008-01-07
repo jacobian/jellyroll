@@ -115,7 +115,7 @@ class Photo(models.Model):
     """
     
     # Key Flickr info
-    photo_id    = models.PositiveIntegerField(unique=True, primary_key=True)
+    photo_id    = models.CharField(unique=True, primary_key=True, max_length=50)
     server_id   = models.PositiveSmallIntegerField()
     secret      = models.CharField(max_length=30, blank=True)
     
