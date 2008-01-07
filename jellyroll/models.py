@@ -1,16 +1,11 @@
-import pygments
-import pygments.lexers
-import pygments.formatters
 import urllib
 import urlparse
 from django.conf import settings
-from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.generic import GenericForeignKey
 from django.db import models
-from django.template.loader import render_to_string
 from django.utils import simplejson, text
 from jellyroll.managers import ItemManager
-from jellyroll.utils import highlight_code
 from tagging.fields import TagField
 
 class Item(models.Model):
@@ -21,7 +16,7 @@ class Item(models.Model):
     # Generic relation to the object.
     content_type = models.ForeignKey(ContentType)
     object_id = models.IntegerField()
-    object = generic.GenericForeignKey()
+    object = GenericForeignKey()
     
     # "Standard" metadata each object provides.
     url = models.URLField(blank=True)

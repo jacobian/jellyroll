@@ -10,6 +10,8 @@ def main(argv):
     parser.add_option("-p", "--provider", dest="providers", action="append", help="Only use certain provider(s).")
     parser.add_option("-l", "--list-providers", action="store_true", help="Display a list of active data providers.")
     options, args = parser.parse_args(argv)
+
+    logging.basicConfig(level=options.level, format="%(name)s: %(levelname)s: %(message)s")
     
     available_providers = jellyroll.providers.active_providers()
     
@@ -24,7 +26,6 @@ def main(argv):
                 print_providers(available_providers)
                 sys.exit(0)
     
-    logging.basicConfig(level=options.level, format="%(name)s: %(levelname)s: %(message)s")
     jellyroll.providers.update(options.providers)
 
 def print_providers(pl):

@@ -13,7 +13,7 @@ def active_providers():
             mod = __import__(provider, '', '', [''])
         except ImportError, e:
             log.error("Couldn't import provider %r: %s" % (provider, e))
-            continue
+            raise
         if mod.enabled():
             providers.append(provider)
     return sorted(providers)
