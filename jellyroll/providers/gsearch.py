@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
 from django.utils import tzinfo
+from django.utils.encoding import smart_unicode
 from jellyroll.models import Item, SearchEngine, WebSearch, WebSearchResult
 from jellyroll.models import VideoSource, Video
 from jellyroll.providers import utils
@@ -45,8 +46,8 @@ CT = ContentType.objects.get_for_model
 @transaction.commit_on_success
 def _handle_query(entry):
     engine = SearchEngine.objects.get(name="Google")
-    guid = utils.safestr(urlparse.urlsplit(entry.guid)[2].replace("/searchhistory/", ""))
-    query = utils.safestr(entry.title)
+    guid = smart_unicode(urlparse.urlsplit(entry.guid)[2].replace("/searchhistory/", ""))
+    query = smart_unicode(entry.title)
     timestamp = datetime.datetime(tzinfo=tzinfo.FixedOffset(0), *entry.updated_parsed[:6])
     
     log.debug("Handling Google query for %r", query)
@@ -66,9 +67,9 @@ def _handle_query(entry):
     
 @transaction.commit_on_success
 def _handle_result(entry):
-    guid = utils.safestr(entry.query_guid)
-    title = utils.safestr(entry.title)
-    url = utils.safestr(entry.link)
+    guid = smart_unicode(entry.query_guid)
+    title = smart_unicode(entry.title)
+    url = smart_unicode(entry.link)
 
     log.debug("Adding search result: %r" % url)
     try:
@@ -90,8 +91,8 @@ def _handle_result(entry):
 @transaction.commit_on_success
 def _handle_video(entry):
     vs = VideoSource.objects.get(name="Google")
-    url = utils.safestr(entry.link)
-    title = utils.safestr(entry.title)
+    url = smart_unicode(entry.link)
+    title = smart_unicode(entry.title)
     timestamp = datetime.datetime(tzinfo=tzinfo.FixedOffset(0), *entry.updated_parsed[:6])
     
     log.debug("Adding viewed video: %r" % title)

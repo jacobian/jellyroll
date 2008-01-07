@@ -2,8 +2,10 @@ import time
 import logging
 import datetime
 from django.db import transaction
+from django.utils.encoding import smart_unicode
 from jellyroll.models import Item, CodeRepository, CodeCommit
 from jellyroll.providers import utils
+
 
 try:
     import pysvn
@@ -42,7 +44,7 @@ def _handle_revision(repository, r):
     ci, created = CodeCommit.objects.get_or_create(
         revision = r.revision.number,
         repository = repository,
-        defaults = {"message": utils.safestr(r.message)}
+        defaults = {"message": smart_unicode(r.message)}
     )
     return Item.objects.create_or_update(
         instance = ci, 

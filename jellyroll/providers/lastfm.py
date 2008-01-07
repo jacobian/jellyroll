@@ -3,6 +3,7 @@ import urllib
 import logging
 from django.conf import settings
 from django.db import transaction
+from django.utils.encoding import smart_unicode
 from jellyroll.providers import utils
 from jellyroll.models import Item, Track
 from django.template.defaultfilters import slugify
@@ -31,11 +32,11 @@ def update():
     xml = utils.getxml(RECENT_TRACKS_URL % settings.LASTFM_USERNAME)
     for track in xml.getiterator("track"):
         artist      = track.find('artist')
-        artist_name = utils.safestr(artist.text)
+        artist_name = smart_unicode(artist.text)
         artist_mbid = artist.get('mbid')
-        track_name  = utils.safestr(track.find('name').text)
-        track_mbid  = utils.safestr(track.find('mbid').text)
-        url         = utils.safestr(track.find('url').text)
+        track_name  = smart_unicode(track.find('name').text)
+        track_mbid  = smart_unicode(track.find('mbid').text)
+        url         = smart_unicode(track.find('url').text)
         timestamp   = datetime.datetime.fromtimestamp(int(track.find('date').get('uts')))
         if timestamp > last_update_date:
             log.debug("Handling track: %r - %r", artist_name, track_name)
@@ -67,7 +68,7 @@ def _tags_for_track(artist_name, track_name):
         for t in xml.getiterator("tag"):
             count = utils.safeint(t.find("count").text)
             if count >= getattr(settings, 'LASTFM_TAG_USAGE_THRESHOLD', 15):
-                tags.add(slugify(utils.safestr(t.find("name").text)))            
+                tags.add(slugify(smart_unicode(t.find("name").text)))            
     return " ".join(tags)
 
 @transaction.commit_on_success      

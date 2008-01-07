@@ -2,6 +2,7 @@ import httplib2
 import dateutil.parser
 import dateutil.tz
 from django.utils import simplejson
+from django.utils.encoding import force_unicode
 from anyetree import etree
 
 DEFAULT_HTTP_HEADERS = {
@@ -47,32 +48,10 @@ def parsedate(s):
     if dt.tzinfo:
         dt = dt.astimezone(dateutil.tz.tzlocal()).replace(tzinfo=None)
     return dt
-
-#
-# String/unicode conversion utils.
-#
-    
-def safestr(s):
-    """
-    Safely corerce *anything* to a string. If the object can't be str'd, an
-    empty string will be returned.
-    
-    You can (and I do) use this for really crappy unicode handling, but it's
-    a bit like killing a mosquito with a bazooka.
-    """
-    if s is None:
-        return ""
-    if isinstance(s, unicode):
-        return s.encode('ascii', 'xmlcharrefreplace')
-    else:
-        try:
-            return str(s)
-        except:
-            return ""
             
 def safeint(s):
-    """Like safestr(), but always returns an int. Returns 0 on failure."""
+    """Always returns an int. Returns 0 on failure."""
     try:
-        return int(safestr(s))
-    except ValueError:
+        return int(force_unicode(s))
+    except (ValueError, TypeError):
         return 0

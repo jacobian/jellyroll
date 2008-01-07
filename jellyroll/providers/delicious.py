@@ -5,6 +5,7 @@ import logging
 import urllib
 from django.conf import settings
 from django.db import transaction
+from django.utils.encoding import smart_unicode
 from jellyroll.models import Item, Bookmark
 from jellyroll.providers import utils
 
@@ -34,20 +35,8 @@ class DeliciousClient(object):
         if delta < 2:
             time.sleep(2 - delta)
         DeliciousClient.lastcall = time.time()
-        url = ("https://api.del.icio.us/%s?" % self.method) + urllib.urlencode(params)
-        
-        # Yahoo *still* sometimes throws a 503 even when we respect their
-        # intervals, so if we get one of those "hard" 503s, pause for a bit
-        xml = None
-        delay = 5
-        while xml is None:
-            try:
-                xml = utils.getxml(url, username=self.username, password=self.password)
-            except utils.HttpError(503):
-                log.debug("503 fetching url; retry in %s seconds." % delay)
-                time.sleep(delay)
-                delay *= 2
-        return xml
+        url = ("https://api.del.icio.us/%s?" % self.method) + urllib.urlencode(params)        
+        return utils.getxml(url, username=self.username, password=self.password)
 
 #
 # Public API
@@ -82,7 +71,7 @@ def _update_bookmarks_from_date(delicious, dt):
     log.debug("Reading bookmarks from %s", dt)
     xml = delicious.posts.get(dt=dt.strftime("%Y-%m-%d"))
     for post in xml.getiterator('post'):
-        info = dict((k, utils.safestr(post.get(k))) for k in post.keys())
+        info = dict((k, smart_unicode(post.get(k))) for k in post.keys())
         log.debug("Handling bookmark of %r", info["href"])
         _handle_bookmark(info)
 

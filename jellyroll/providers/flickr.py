@@ -3,6 +3,7 @@ import logging
 import urllib
 from django.conf import settings
 from django.db import transaction
+from django.utils.encoding import smart_unicode
 from jellyroll.models import Item, Photo
 from jellyroll.providers import utils
 
@@ -53,7 +54,7 @@ def update():
     
     # Preload the list of licenses
     licenses = licenses = flickr.photos.licenses.getInfo()
-    licenses = dict((l["id"], utils.safestr(l["url"])) for l in licenses["licenses"]["license"])
+    licenses = dict((l["id"], smart_unicode(l["url"])) for l in licenses["licenses"]["license"])
     
     # Handle update by pages until we see photos we've already handled
     last_update_date = Item.objects.get_last_update_of_model(Photo)
@@ -74,8 +75,8 @@ def update():
             
             photo_id = utils.safeint(photodict["id"])
             license = licenses[photodict["license"]]
-            secret = utils.safestr(photodict["secret"])
-            server = utils.safestr(photodict["server"])
+            secret = smart_unicode(photodict["secret"])
+            server = smart_unicode(photodict["server"])
             _handle_photo(flickr, photo_id, secret, license, timestamp)
             
         page += 1
@@ -88,9 +89,9 @@ def update():
 def _handle_photo(flickr, photo_id, secret, license, timestamp):
     info = flickr.photos.getInfo(photo_id=photo_id, secret=secret)["photo"]
     server_id = utils.safeint(info["server"])
-    taken_by = utils.safestr(info["owner"]["username"])
-    title = utils.safestr(info["title"]["_content"])
-    description = utils.safestr(info["description"]["_content"])
+    taken_by = smart_unicode(info["owner"]["username"])
+    title = smart_unicode(info["title"]["_content"])
+    description = smart_unicode(info["description"]["_content"])
     comment_count = utils.safeint(info["comments"]["_content"])
     date_uploaded = datetime.datetime.fromtimestamp(utils.safeint(info["dates"]["posted"]))
     date_updated = datetime.datetime.fromtimestamp(utils.safeint(info["dates"]["lastupdate"]))
@@ -134,9 +135,9 @@ def _handle_photo(flickr, photo_id, secret, license, timestamp):
 def _convert_exif(exif):
     converted = {}
     for e in exif["photo"]["exif"]:
-        key = utils.safestr(e["label"])
+        key = smart_unicode(e["label"])
         val = e.get("clean", e["raw"])["_content"]
-        val = utils.safestr(val)
+        val = smart_unicode(val)
         converted[key] = val
     return converted
 

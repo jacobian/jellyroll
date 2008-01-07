@@ -3,6 +3,7 @@ import logging
 import xmlrpclib
 from django.conf import settings
 from django.db import transaction
+from django.utils.encoding import smart_unicode
 from jellyroll.models import Item, VideoSource, Video
 from jellyroll.providers import utils
 
@@ -24,9 +25,9 @@ def update():
     })
     xml = utils.ET.fromstring(res)
     for video in xml.getiterator("video"):
-        title = utils.safestr(video.find("title").text)
-        url = utils.safestr(video.find("url").text)
-        tags = utils.safestr(video.find("tags").text).lower()
+        title = smart_unicode(video.find("title").text)
+        url = smart_unicode(video.find("url").text)
+        tags = smart_unicode(video.find("tags").text).lower()
         # suckage: youtube doesn't expose the date a movie was favorited :(
         timestamp = datetime.datetime.now()
         log.debug("Handling video: %r" % title)
