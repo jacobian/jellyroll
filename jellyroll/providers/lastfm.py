@@ -4,6 +4,7 @@ import logging
 from django.conf import settings
 from django.db import transaction
 from django.utils.encoding import smart_unicode
+from httplib2 import HttpLib2Error
 from jellyroll.providers import utils
 from jellyroll.models import Item, Track
 from django.template.defaultfilters import slugify
@@ -63,8 +64,11 @@ def _tags_for_track(artist_name, track_name):
         log.debug("Fetching tags from %r", url)
         try:
             xml = utils.getxml(url)
-        except utils.HttpError(408):
-            return ""
+        except HttpLib2Error, e:
+            if e.code == 408:
+                return ""
+            else:
+                raise
         for t in xml.getiterator("tag"):
             count = utils.safeint(t.find("count").text)
             if count >= getattr(settings, 'LASTFM_TAG_USAGE_THRESHOLD', 15):
