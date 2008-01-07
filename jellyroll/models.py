@@ -30,7 +30,7 @@ class Item(models.Model):
     
     # Metadata about where the object "came from" -- used by data providers to
     # figure out which objects to update when asked.
-    source = models.CharField(maxlength=100, blank=True)
+    source = models.CharField(max_length=100, blank=True)
     source_id = models.TextField(blank=True)
     
     # Denormalized object __str__, for performance 
@@ -68,7 +68,7 @@ class Bookmark(models.Model):
     """
     
     url         = models.URLField(unique=True)
-    description = models.CharField(maxlength=255)
+    description = models.CharField(max_length=255)
     extended    = models.TextField(blank=True)
     thumbnail   = models.ImageField(upload_to="img/jellyroll/bookmarks/%Y/%m", blank=True)
     
@@ -82,11 +82,11 @@ class Bookmark(models.Model):
 class Track(models.Model):
     """A track you listened to. The model is based on last.fm."""
     
-    artist_name = models.CharField(maxlength=250)
-    track_name  = models.CharField(maxlength=250)
+    artist_name = models.CharField(max_length=250)
+    track_name  = models.CharField(max_length=250)
     url         = models.URLField(blank=True)
-    track_mbid  = models.CharField("MusicBrainz Track ID", maxlength=36, blank=True)
-    artist_mbid = models.CharField("MusicBrainz Artist ID", maxlength=36, blank=True)
+    track_mbid  = models.CharField("MusicBrainz Track ID", max_length=36, blank=True)
+    artist_mbid = models.CharField("MusicBrainz Artist ID", max_length=36, blank=True)
     
     class Admin:
         list_display = ('track_name', 'artist_name')
@@ -117,16 +117,16 @@ class Photo(models.Model):
     # Key Flickr info
     photo_id    = models.PositiveIntegerField(unique=True, primary_key=True)
     server_id   = models.PositiveSmallIntegerField()
-    secret      = models.CharField(maxlength=30, blank=True)
+    secret      = models.CharField(max_length=30, blank=True)
     
     # Rights metadata
-    taken_by    = models.CharField(maxlength=100, blank=True)
+    taken_by    = models.CharField(max_length=100, blank=True)
     cc_license  = models.URLField(blank=True, choices=CC_LICENSES)
     
     # Main metadata
-    title           = models.CharField(maxlength=250)
+    title           = models.CharField(max_length=250)
     description     = models.TextField(blank=True)
-    comment_count   = models.PositiveIntegerField(maxlength=5, default=0)
+    comment_count   = models.PositiveIntegerField(max_length=5, default=0)
     
     # Date metadata
     date_uploaded = models.DateTimeField(blank=True, null=True)
@@ -223,7 +223,7 @@ class SearchEngine(models.Model):
     """
     Simple encapsulation of a search engine.
     """
-    name = models.CharField(maxlength=200)
+    name = models.CharField(max_length=200)
     home = models.URLField()
     search_template = models.URLField()
     
@@ -236,7 +236,7 @@ class WebSearch(models.Model):
     but (may/could/will) work with other sources.
     """
     engine = models.ForeignKey(SearchEngine, related_name="searches")
-    query = models.CharField(maxlength=250)
+    query = models.CharField(max_length=250)
     
     class Meta:
         verbose_name_plural = "web searches"
@@ -256,7 +256,7 @@ class WebSearchResult(models.Model):
     A page viewed as a result of a WebSearch
     """
     search = models.ForeignKey(WebSearch, related_name="results", edit_inline=models.TABULAR)
-    title  = models.CharField(maxlength=250)
+    title  = models.CharField(max_length=250)
     url    = models.URLField(core=True)
 
     def __str__(self):
@@ -267,7 +267,7 @@ class VideoSource(models.Model):
     A place you might view videos. Basically just an encapsulation for the
     "embed template" bit.
     """
-    name = models.CharField(maxlength=200)
+    name = models.CharField(max_length=200)
     home = models.URLField()
     embed_template = models.URLField()
     
@@ -278,7 +278,7 @@ class Video(models.Model):
     """A video you viewed."""
     
     source = models.ForeignKey(VideoSource, related_name="videos")
-    title  = models.CharField(maxlength=250)
+    title  = models.CharField(max_length=250)
     url    = models.URLField()
     
     class Admin:
@@ -305,10 +305,10 @@ class CodeRepository(models.Model):
     A code repository that you check code into somewhere. Currently only SVN
     is supported, but other forms should be hard to support.
     """
-    type = models.CharField(maxlength=10, choices=SCM_CHOICES)
-    name = models.CharField(maxlength=100)
+    type = models.CharField(max_length=10, choices=SCM_CHOICES)
+    name = models.CharField(max_length=100)
     slug = models.SlugField(prepopulate_from=("name",))
-    username = models.CharField(maxlength=100, help_text="Your username for this SCM.")
+    username = models.CharField(max_length=100, help_text="Your username for this SCM.")
     public_changeset_template = models.URLField(
         verify_exists = False, blank = True,
         help_text = "Template for viewing a changeset publically. Use '%s' for the revision number")
@@ -348,88 +348,6 @@ class CodeCommit(models.Model):
             return self.repository.public_changeset_template % self.revision
         return ""
 
-class Quote(models.Model):
-    """
-    Something someone said.
-    """
-    speaker = models.CharField(maxlength=200)   # XXX Fixme: replace with relation to Person
-    quote = models.TextField()
-    link = models.URLField(blank=True)
-    
-    class Admin:
-        list_display = ("speaker", "truncated_quote")
-        search_fields = ("speaker", "quote")
-        
-    def __str__(self):
-        return "%s: %s" % (self.speaker, self.truncated_quote())
-        
-    @property
-    def url(self):
-        if self.link:
-            return self.link
-        else:
-            return ""
-
-    def truncated_quote(self):
-        return text.truncate_words(self.quote, 30)
-
-class Chat(models.Model):
-    """
-    A conversation/chat
-    """
-    title = models.CharField(maxlength=200, blank=True)
-    
-    class Admin:
-        pass
-        
-    def __str__(self):
-        return self.title
-        
-class ChatItem(models.Model):
-    """
-    An item in a Chat
-    """
-    chat = models.ForeignKey(Chat, related_name="items", edit_inline=models.TABULAR, num_in_admin=10)
-    order = models.PositiveSmallIntegerField(core=True)
-    speaker = models.CharField(maxlength=200) # XXX fixme: replace with Person relation
-    quote = models.CharField(maxlength=200)
-    
-    class Meta:
-        ordering = ("chat", "order")
-        unique_together = [("chat", "order")]
-        
-    def __str__(self):
-        return "%s: %s" % (self.speaker, text.truncate_words(self.quote, 30))
-        
-def _get_language_choices():
-    """
-    Return language choices tuples based on available pygments lexers.
-    """
-    yield ("guess", "(Guess)")
-    for (name, aliases, filetypes, mimetypes) in sorted(pygments.lexers.get_all_lexers()):
-        yield (aliases[0], name)
-    
-class CodeSnippet(models.Model):
-    """
-    A bit of code.
-    """
-    title = models.CharField(maxlength=200)
-    language = models.CharField(maxlength=50, choices=_get_language_choices(), default="guess")
-    code = models.TextField()
-    notes = models.TextField(blank=True)
-    rendered = models.TextField(editable=False)
-    
-    class Admin:
-        list_display = ('title', 'language')
-        search_fields = ('title', 'language', 'notes')
-        
-    def __str__(self):
-        return self.title
-        
-    def save(self):
-        self.rendered = highlight_code(self.code, self.language)
-        super(CodeSnippet, self).save()
-
 # Register item objects to be "followed"
 Item.objects.follow_model(Bookmark)
 Item.objects.follow_model(Track)
@@ -437,6 +355,3 @@ Item.objects.follow_model(Photo)
 Item.objects.follow_model(WebSearch)
 Item.objects.follow_model(Video)
 Item.objects.follow_model(CodeCommit)
-Item.objects.follow_model(Quote)
-Item.objects.follow_model(Chat)
-Item.objects.follow_model(CodeSnippet)
