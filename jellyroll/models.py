@@ -62,10 +62,11 @@ class Bookmark(models.Model):
     thumbnail field for ma.gnolia users.
     """
     
-    url         = models.URLField(unique=True)
-    description = models.CharField(max_length=255)
-    extended    = models.TextField(blank=True)
-    thumbnail   = models.ImageField(upload_to="img/jellyroll/bookmarks/%Y/%m", blank=True)
+    url           = models.URLField(unique=True)
+    description   = models.CharField(max_length=255)
+    extended      = models.TextField(blank=True)
+    thumbnail     = models.ImageField(upload_to="img/jellyroll/bookmarks/%Y/%m", blank=True)
+    thumbnail_url = models.URLField(blank=True, verify_exists=False)
     
     class Admin:
         list_display = ('url', 'description')
