@@ -9,6 +9,11 @@ from jellyroll.providers import utils
 from jellyroll.models import Item, Track
 from django.template.defaultfilters import slugify
 
+try:
+    set
+except NameError:
+    from sets import Set as set     # Python 2.3 fallback
+
 #
 # API URLs
 #
