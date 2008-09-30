@@ -85,7 +85,6 @@ def update():
 # Private API
 #
 
-@transaction.commit_on_success
 def _handle_photo(flickr, photo_id, secret, license, timestamp):
     info = flickr.photos.getInfo(photo_id=photo_id, secret=secret)["photo"]
     server_id = utils.safeint(info["server"])
@@ -131,6 +130,7 @@ def _handle_photo(flickr, photo_id, secret, license, timestamp):
         tags = _convert_tags(info["tags"]),
         source = __name__,
     )
+_handle_photo = transaction.commit_on_success(_handle_photo)
 
 def _convert_exif(exif):
     converted = {}

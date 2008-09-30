@@ -75,7 +75,6 @@ def _tags_for_track(artist_name, track_name):
                 tags.add(slugify(smart_unicode(t.find("name").text)))            
     return " ".join(tags)
 
-@transaction.commit_on_success      
 def _handle_track(artist_name, artist_mbid, track_name, track_mbid, url, timestamp, tags):
     t = Track(
         artist_name = artist_name,
@@ -90,4 +89,4 @@ def _handle_track(artist_name, artist_mbid, track_name, track_mbid, url, timesta
         tags = tags,
         source = __name__
     )
-
+_handle_track = transaction.commit_on_success(_handle_track)

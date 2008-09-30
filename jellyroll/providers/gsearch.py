@@ -43,7 +43,6 @@ def update():
 # Shortcut
 CT = ContentType.objects.get_for_model
 
-@transaction.commit_on_success
 def _handle_query(entry):
     engine = SearchEngine.objects.get(name="Google")
     guid = smart_unicode(urlparse.urlsplit(entry.guid)[2].replace("/searchhistory/", ""))
@@ -64,8 +63,8 @@ def _handle_query(entry):
             source = __name__,
             source_id = guid,
         )
+_handle_query = transaction.commit_on_success(_handle_query)
     
-@transaction.commit_on_success
 def _handle_result(entry):
     guid = smart_unicode(entry.query_guid)
     title = smart_unicode(entry.title)
@@ -87,8 +86,8 @@ def _handle_result(entry):
         url = url,
         defaults = {'title' : title},
     )
+_handle_result = transaction.commit_on_success(_handle_result)
     
-@transaction.commit_on_success
 def _handle_video(entry):
     vs = VideoSource.objects.get(name="Google")
     url = smart_unicode(entry.link)
@@ -106,3 +105,4 @@ def _handle_video(entry):
         timestamp = timestamp,
         source = __name__,
     )
+_handle_video = transaction.commit_on_success(_handle_video)

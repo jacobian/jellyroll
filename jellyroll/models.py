@@ -128,13 +128,13 @@ class Photo(models.Model):
     def __unicode__(self):
         return self.title
     
-    @property
     def url(self):
         return "http://www.flickr.com/photos/%s/%s/" % (self.taken_by, self.photo_id)
+    url = property(url)
         
-    @property
     def timestamp(self):
         return self.date_uploaded
+    timestamp = property(timestamp)
     
     ### Image URLs ###
     
@@ -153,18 +153,17 @@ class Photo(models.Model):
     
     ### Rights ###
     
-    @property
     def license_code(self):
         if not self.cc_license:
             return None
         path = urlparse.urlparse(self.cc_license)[2]
         return path.split("/")[2]
+    license_code = property(license_code)
     
-    @property
     def taken_by_me(self):
         return self.taken_by == getattr(settings, "FLICKR_USERNAME", "")
+    taken_by_me = property(taken_by_me)
     
-    @property
     def can_republish(self):
         """
         Is it OK to republish this photo, or must it be linked only?
@@ -186,16 +185,17 @@ class Photo(models.Model):
         # Otherwise, we're OK to republish it.
         else:
             return True
+    can_republish = property(can_republish)
     
-    @property
     def derivative_ok(self):
         """Is it OK to produce derivative works?"""
         return self.can_republish and "nd" not in self.license_code
+    derivative_ok = property(derivative_ok)
     
-    @property
     def must_share_alike(self):
         """Must I share derivative works?"""
         return self.can_republish and "sa" in self.license_code
+    must_share_alike = property(must_share_alike)
 
 class SearchEngine(models.Model):
     """
@@ -222,9 +222,9 @@ class WebSearch(models.Model):
     def __unicode__(self):
         return self.query
         
-    @property
     def url(self):
         return self.engine.search_template % (urllib.quote_plus(self.query))
+    url = property(url)
         
 class WebSearchResult(models.Model):
     """
@@ -259,14 +259,14 @@ class Video(models.Model):
     def __unicode__(self):
         return self.title
         
-    @property
     def docid(self):
         scheme, netloc, path, params, query, fragment = urlparse.urlparse(self.url)
-        return query.split("=")[-1]        
+        return query.split("=")[-1]
+    docid = property(docid)
         
-    @property
     def embed_url(self):
         return self.source.embed_template % self.docid
+    embed_url = property(embed_url)
 
 SCM_CHOICES = (
     ("svn", "Subversion"),
@@ -306,11 +306,11 @@ class CodeCommit(models.Model):
     def __unicode__(self):
         return "[%s] %s" % (self.revision, text.truncate_words(self.message, 10))
 
-    @property
     def url(self):
         if self.repository.public_changeset_template:
             return self.repository.public_changeset_template % self.revision
         return ""
+    url = property(url)
 
 # Register item objects to be "followed"
 Item.objects.follow_model(Bookmark)
