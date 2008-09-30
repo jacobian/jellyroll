@@ -9,6 +9,11 @@ from jellyroll.providers import utils
 from jellyroll.models import Item, Track
 from django.template.defaultfilters import slugify
 
+try:
+    set
+except NameError:
+    from sets import Set as set     # Python 2.3 fallback
+
 #
 # API URLs
 #
@@ -75,7 +80,6 @@ def _tags_for_track(artist_name, track_name):
                 tags.add(slugify(smart_unicode(t.find("name").text)))            
     return " ".join(tags)
 
-@transaction.commit_on_success      
 def _handle_track(artist_name, artist_mbid, track_name, track_mbid, url, timestamp, tags):
     t = Track(
         artist_name = artist_name,
@@ -90,4 +94,4 @@ def _handle_track(artist_name, artist_mbid, track_name, track_mbid, url, timesta
         tags = tags,
         source = __name__
     )
-
+_handle_track = transaction.commit_on_success(_handle_track)

@@ -66,7 +66,6 @@ def update():
 # Private API
 #
 
-@transaction.commit_on_success      
 def _update_bookmarks_from_date(delicious, dt):
     log.debug("Reading bookmarks from %s", dt)
     xml = delicious.posts.get(dt=dt.strftime("%Y-%m-%d"))
@@ -74,6 +73,7 @@ def _update_bookmarks_from_date(delicious, dt):
         info = dict((k, smart_unicode(post.get(k))) for k in post.keys())
         log.debug("Handling bookmark of %r", info["href"])
         _handle_bookmark(info)
+_update_bookmarks_from_date = transaction.commit_on_success(_update_bookmarks_from_date)
 
 def _handle_bookmark(info):
     b, created = Bookmark.objects.get_or_create(

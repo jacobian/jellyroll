@@ -1,6 +1,11 @@
 import logging
 from django.conf import settings
 
+try:
+    set
+except NameError:
+    from sets import Set as set     # Python 2.3 fallback
+
 log = logging.getLogger("jellyroll.update")
 
 def active_providers():

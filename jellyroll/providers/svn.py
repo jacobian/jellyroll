@@ -38,7 +38,6 @@ def _update_repository(repository):
         if revision.author == repository.username:
             _handle_revision(repository, revision)
 
-@transaction.commit_on_success
 def _handle_revision(repository, r):
     log.debug("Handling [%s] from %s" % (r.revision.number, repository.url))
     ci, created = CodeCommit.objects.get_or_create(
@@ -51,3 +50,4 @@ def _handle_revision(repository, r):
         timestamp = datetime.datetime.fromtimestamp(r.date),
         source = "%s:%s" % (__name__, repository.url),
     )
+_handle_revision = transaction.commit_on_success(_handle_revision)

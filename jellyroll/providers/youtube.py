@@ -37,7 +37,6 @@ def update():
 # Private API
 #
 
-@transaction.commit_on_success
 def _handle_video(title, url, tags, timestamp):
     source = VideoSource.objects.get(name="YouTube")
     vid, created = Video.objects.get_or_create(url=url, defaults={'title': title, 'source': source})
@@ -47,3 +46,4 @@ def _handle_video(title, url, tags, timestamp):
         tags = tags,
         source = __name__,
     )
+_handle_video = transaction.commit_on_success(_handle_video)

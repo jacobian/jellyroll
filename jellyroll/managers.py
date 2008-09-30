@@ -1,7 +1,6 @@
 import datetime
 from django.db import models
 from django.db.models import signals
-from django.dispatch import dispatcher
 from django.contrib.contenttypes.models import ContentType
 from tagging.fields import TagField
 
@@ -10,7 +9,7 @@ class ItemManager(models.Manager):
     def __init__(self):
         self.models_by_name = {}
     
-    def create_or_update(self, instance, timestamp=None, tags="", source="INTERACTIVE", source_id=""):
+    def create_or_update(self, instance, timestamp=None, tags="", source="INTERACTIVE", source_id="", **kwargs):
         """
         Create or update an Item from some instace.
         """
@@ -19,20 +18,14 @@ class ItemManager(models.Manager):
         # this function (otherwise we could get an infinite loop).
         if instance._get_pk_val() is None:
             try:
-                # dispatcher.disconnect(self.create_or_update,
-                # signal=signals.post_save, sender=type(instance))
-                signals.post_save.disconnect(self.create_or_update,
-                sender=type(instance))
-            except: #  dispatcher.errors.DispatcherError
+                signals.post_save.disconnect(self.create_or_update, sender=type(instance))
+            except Exception, err:
                 reconnect = False
             else:
                 reconnect = True
             instance.save()
             if reconnect:
-                # dispatcher.connect(self.create_or_update,
-                # signal=signals.post_save, sender=type(instance))
-                signals.post_save.connect(self.create_or_update,
-                sender=type(instance))
+                signals.post_save.connect(self.create_or_update, sender=type(instance))
         
         # Make sure the item "should" be registered.
         if not getattr(instance, "jellyrollable", True):
@@ -82,10 +75,7 @@ class ItemManager(models.Manager):
         Follow a particular model class, updating associated Items automatically.
         """
         self.models_by_name[model.__name__.lower()] = model
-        # dispatcher.connect(self.create_or_update, signal=signals.post_save,
-        # sender=model)
-        signals.post_save.connect(self.create_or_update,
-        sender=model)
+        signals.post_save.connect(self.create_or_update, sender=model)
         
     def get_for_model(self, model):
         """

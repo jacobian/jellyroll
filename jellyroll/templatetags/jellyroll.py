@@ -10,7 +10,6 @@ Item = models.get_model("jellyroll", "item")
 
 register = template.Library()
 
-@register.tag
 def jellyrender(parser, token):
     """
     Render a jellyroll ``Item`` by passing it through a snippet template.
@@ -59,6 +58,7 @@ def jellyrender(parser, token):
                 raise template.TemplateSyntaxError("%r tag got an unknown argument: %r" % (bits[0], bit))
             
     return JellyrenderNode(item, **args)
+jellyrender = register.tag(jellyrender)
     
 class JellyrenderNode(template.Node):
         
@@ -112,7 +112,6 @@ class JellyrenderNode(template.Node):
         else:
             return rendered
             
-@register.tag
 def get_jellyroll_items(parser, token):
     """
     Load jellyroll ``Item`` objects into the context.In the simplest mode, the
@@ -214,6 +213,7 @@ def get_jellyroll_items(parser, token):
             args[arg] = model_list
     
     return GetJellyrollItemsNode(**args)
+get_jellyroll_items = register.tag(get_jellyroll_items)
 
 class GetJellyrollItemsNode(template.Node):
     def __init__(self, asvar, limit=None, start=None, end=None, oftypes=[], excludetypes=[], reversed=False):

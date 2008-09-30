@@ -7,6 +7,11 @@ from django.utils.encoding import smart_unicode
 from jellyroll.models import Item, Photo
 from jellyroll.providers import utils
 
+try:
+    set
+except NameError:
+    from sets import Set as set     # Python 2.3 fallback
+
 log = logging.getLogger("jellyroll.providers.flickr")
 
 #
@@ -85,7 +90,6 @@ def update():
 # Private API
 #
 
-@transaction.commit_on_success
 def _handle_photo(flickr, photo_id, secret, license, timestamp):
     info = flickr.photos.getInfo(photo_id=photo_id, secret=secret)["photo"]
     server_id = utils.safeint(info["server"])
@@ -131,6 +135,7 @@ def _handle_photo(flickr, photo_id, secret, license, timestamp):
         tags = _convert_tags(info["tags"]),
         source = __name__,
     )
+_handle_photo = transaction.commit_on_success(_handle_photo)
 
 def _convert_exif(exif):
     converted = {}
