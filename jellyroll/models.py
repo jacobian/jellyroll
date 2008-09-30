@@ -28,7 +28,7 @@ class Item(models.Model):
     source = models.CharField(max_length=100, blank=True)
     source_id = models.TextField(blank=True)
     
-    # Denormalized object __str__, for performance 
+    # Denormalized object __unicode__, for performance 
     object_str = models.TextField(blank=True)
     
     objects = ItemManager()
@@ -37,7 +37,7 @@ class Item(models.Model):
         ordering = ['-timestamp']
         unique_together = [("content_type", "object_id")]
     
-    def __str__(self):
+    def __unicode__(self):
         return "%s: %s" % (self.content_type.model_class().__name__, self.object_str)
         
     def __cmp__(self, other):
@@ -62,7 +62,7 @@ class Bookmark(models.Model):
     thumbnail     = models.ImageField(upload_to="img/jellyroll/bookmarks/%Y/%m", blank=True)
     thumbnail_url = models.URLField(blank=True, verify_exists=False)
     
-    def __str__(self):
+    def __unicode__(self):
         return self.url
 
 class Track(models.Model):
@@ -74,7 +74,7 @@ class Track(models.Model):
     track_mbid  = models.CharField("MusicBrainz Track ID", max_length=36, blank=True)
     artist_mbid = models.CharField("MusicBrainz Artist ID", max_length=36, blank=True)
     
-    def __str__(self):
+    def __unicode__(self):
         return "%s - %s" % (self.artist_name, self.track_name)
 
 CC_LICENSES = (
@@ -125,7 +125,7 @@ class Photo(models.Model):
             return {}
     exif = property(_get_exif, _set_exif, "Photo EXIF data, as a dict.")
     
-    def __str__(self):
+    def __unicode__(self):
         return self.title
     
     @property
@@ -205,7 +205,7 @@ class SearchEngine(models.Model):
     home = models.URLField()
     search_template = models.URLField()
     
-    def __str__(self):
+    def __unicode__(self):
         return self.name
         
 class WebSearch(models.Model):
@@ -219,7 +219,7 @@ class WebSearch(models.Model):
     class Meta:
         verbose_name_plural = "web searches"
 
-    def __str__(self):
+    def __unicode__(self):
         return self.query
         
     @property
@@ -234,7 +234,7 @@ class WebSearchResult(models.Model):
     title  = models.CharField(max_length=250)
     url    = models.URLField(core=True)
 
-    def __str__(self):
+    def __unicode__(self):
         return self.title
 
 class VideoSource(models.Model):
@@ -246,7 +246,7 @@ class VideoSource(models.Model):
     home = models.URLField()
     embed_template = models.URLField()
     
-    def __str__(self):
+    def __unicode__(self):
         return self.name
 
 class Video(models.Model):
@@ -256,7 +256,7 @@ class Video(models.Model):
     title  = models.CharField(max_length=250)
     url    = models.URLField()
     
-    def __str__(self):
+    def __unicode__(self):
         return self.title
         
     @property
@@ -289,7 +289,7 @@ class CodeRepository(models.Model):
     class Meta:
         verbose_name_plural = "code repositories"
 
-    def __str__(self):
+    def __unicode__(self):
         return self.name
 
 class CodeCommit(models.Model):
@@ -303,7 +303,7 @@ class CodeCommit(models.Model):
     class Meta:
         ordering = ["-revision"]
 
-    def __str__(self):
+    def __unicode__(self):
         return "[%s] %s" % (self.revision, text.truncate_words(self.message, 10))
 
     @property
