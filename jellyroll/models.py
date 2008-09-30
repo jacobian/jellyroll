@@ -28,7 +28,7 @@ class Item(models.Model):
     source = models.CharField(max_length=100, blank=True)
     source_id = models.TextField(blank=True)
     
-    # Denormalized object __str__, for performance 
+    # Denormalized object __unicode__, for performance 
     object_str = models.TextField(blank=True)
     
     objects = ItemManager()
@@ -37,17 +37,17 @@ class Item(models.Model):
         ordering = ['-timestamp']
         unique_together = [("content_type", "object_id")]
     
-    class Admin:
-        date_hierarchy = 'timestamp'
-        list_display = ('timestamp', 'object_str')
-        list_filter = ('content_type', 'timestamp')
-        search_fields = ('object_str', 'tags')
+    # class Admin:
+    #     date_hierarchy = 'timestamp'
+    #     list_display = ('timestamp', 'object_str')
+    #     list_filter = ('content_type', 'timestamp')
+    #     search_fields = ('object_str', 'tags')
     
-    def __str__(self):
+    def __unicode__(self):
         return "%s: %s" % (self.content_type.model_class().__name__, self.object_str)
         
-    def __cmp__(self, other):
-        return cmp(self.timestamp, other.timestamp)
+    # def __cmp__(self, other):
+    #     return cmp(self.timestamp, other.timestamp)
     
     def save(self):
         ct = "%s_%s" % (self.content_type.app_label, self.content_type.model.lower())
@@ -68,11 +68,11 @@ class Bookmark(models.Model):
     thumbnail     = models.ImageField(upload_to="img/jellyroll/bookmarks/%Y/%m", blank=True)
     thumbnail_url = models.URLField(blank=True, verify_exists=False)
     
-    class Admin:
-        list_display = ('url', 'description')
-        search_fields = ('url', 'description', 'thumbnail')
+    # class Admin:
+    #     list_display = ('url', 'description')
+    #     search_fields = ('url', 'description', 'thumbnail')
     
-    def __str__(self):
+    def __unicode__(self):
         return self.url
 
 class Track(models.Model):
@@ -84,11 +84,11 @@ class Track(models.Model):
     track_mbid  = models.CharField("MusicBrainz Track ID", max_length=36, blank=True)
     artist_mbid = models.CharField("MusicBrainz Artist ID", max_length=36, blank=True)
     
-    class Admin:
-        list_display = ('track_name', 'artist_name')
-        search_fields = ("artist_name", "track_name")
+    # class Admin:
+    #     list_display = ('track_name', 'artist_name')
+    #     search_fields = ("artist_name", "track_name")
     
-    def __str__(self):
+    def __unicode__(self):
         return "%s - %s" % (self.artist_name, self.track_name)
 
 CC_LICENSES = (
@@ -139,11 +139,11 @@ class Photo(models.Model):
             return {}
     exif = property(_get_exif, _set_exif, "Photo EXIF data, as a dict.")
     
-    class Admin:
-        list_display = ('title', 'photo_id','description', 'taken_by')
-        search_fields = ('title', 'description', 'taken_by')
+    # class Admin:
+    #     list_display = ('title', 'photo_id','description', 'taken_by')
+    #     search_fields = ('title', 'description', 'taken_by')
     
-    def __str__(self):
+    def __unicode__(self):
         return self.title
     
     @property
@@ -223,7 +223,7 @@ class SearchEngine(models.Model):
     home = models.URLField()
     search_template = models.URLField()
     
-    def __str__(self):
+    def __unicode__(self):
         return self.name
         
 class WebSearch(models.Model):
@@ -237,10 +237,10 @@ class WebSearch(models.Model):
     class Meta:
         verbose_name_plural = "web searches"
 
-    class Admin:
-        list_display = ('query',)
+    # class Admin:
+    #     list_display = ('query',)
 
-    def __str__(self):
+    def __unicode__(self):
         return self.query
         
     @property
@@ -251,11 +251,11 @@ class WebSearchResult(models.Model):
     """
     A page viewed as a result of a WebSearch
     """
-    search = models.ForeignKey(WebSearch, related_name="results", edit_inline=models.TABULAR)
+    search = models.ForeignKey(WebSearch, related_name="results")
     title  = models.CharField(max_length=250)
     url    = models.URLField(core=True)
 
-    def __str__(self):
+    def __unicode__(self):
         return self.title
 
 class VideoSource(models.Model):
@@ -267,7 +267,7 @@ class VideoSource(models.Model):
     home = models.URLField()
     embed_template = models.URLField()
     
-    def __str__(self):
+    def __unicode__(self):
         return self.name
 
 class Video(models.Model):
@@ -277,10 +277,10 @@ class Video(models.Model):
     title  = models.CharField(max_length=250)
     url    = models.URLField()
     
-    class Admin:
-        list_display = ('title',)
+    # class Admin:
+    #     list_display = ('title',)
 
-    def __str__(self):
+    def __unicode__(self):
         return self.title
         
     @property
@@ -313,10 +313,10 @@ class CodeRepository(models.Model):
     class Meta:
         verbose_name_plural = "code repositories"
 
-    class Admin:
-        list_display = ('name', 'type')
+    # class Admin:
+    #     list_display = ('name', 'type')
 
-    def __str__(self):
+    def __unicode__(self):
         return self.name
 
 class CodeCommit(models.Model):
@@ -330,12 +330,12 @@ class CodeCommit(models.Model):
     class Meta:
         ordering = ["-revision"]
 
-    class Admin:
-        list_display = ('__str__', 'repository')
-        list_filter = ('repository',)
-        search_fields = ('message',)
+    # class Admin:
+    #     list_display = ('__unicode__', 'repository')
+    #     list_filter = ('repository',)
+    #     search_fields = ('message',)
 
-    def __str__(self):
+    def __unicode__(self):
         return "[%s] %s" % (self.revision, text.truncate_words(self.message, 10))
 
     @property
