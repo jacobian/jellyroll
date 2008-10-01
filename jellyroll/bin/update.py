@@ -4,6 +4,10 @@ import sys
 import logging
 import optparse
 import jellyroll.providers
+from django.core.management import setup_environ
+import settings
+
+setup_environ(settings)
 
 def main(argv):
     parser = optparse.OptionParser()
