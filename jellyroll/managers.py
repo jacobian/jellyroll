@@ -7,6 +7,7 @@ from tagging.fields import TagField
 class ItemManager(models.Manager):
     
     def __init__(self):
+        super(ItemManager, self).__init__()
         self.models_by_name = {}
     
     def create_or_update(self, instance, timestamp=None, tags="", source="INTERACTIVE", source_id="", **kwargs):
