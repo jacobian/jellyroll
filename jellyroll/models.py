@@ -41,8 +41,8 @@ class Item(models.Model):
     def __unicode__(self):
         return "%s: %s" % (self.content_type.model_class().__name__, self.object_str)
         
-    # def __cmp__(self, other):
-    #     return cmp(self.timestamp, other.timestamp)
+    def __cmp__(self, other):
+        return cmp(self.timestamp, other.timestamp)
     
     def save(self, force_insert=False, force_update=False):
         ct = "%s_%s" % (self.content_type.app_label, self.content_type.model.lower())

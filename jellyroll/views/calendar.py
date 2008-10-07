@@ -83,7 +83,7 @@ def year(request, year, queryset=None,
     if not queryset:
         queryset = Item.objects.all()
     queryset = queryset.filter(timestamp__year=year)
-    if queryset._order_by is None:
+    if not queryset.query.order_by:
         queryset = queryset.order_by("timestamp")
         
     # Build the context
@@ -173,7 +173,7 @@ def month(request, year, month, queryset=None,
     if not queryset:
         queryset = Item.objects.all()
     queryset = queryset.filter(timestamp__range=(first_day, last_day))
-    if queryset._order_by is None:
+    if not queryset.query.order_by:
         queryset = queryset.order_by("timestamp")
     
     # Build the context
@@ -265,7 +265,7 @@ def day(request, year, month, day, queryset=None, recent_first=False,
     if not queryset:
        queryset = Item.objects.all()
     queryset = queryset.filter(timestamp__range=timestamp_range)
-    if queryset._order_by is None:
+    if not queryset.query.order_by:
         if recent_first:
             queryset = queryset.order_by("-timestamp")
         else:
