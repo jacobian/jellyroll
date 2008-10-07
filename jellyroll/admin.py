@@ -1,6 +1,6 @@
 from django.contrib import admin
-from jellyroll.models import Item, Bookmark, Track, Photo, WebSearch, Video
-from jellyroll.models import CodeRepository, CodeCommit
+from jellyroll.models import Item, Bookmark, Track, Photo, WebSearch
+from jellyroll.models import WebSearchResult, Video, CodeRepository, CodeCommit
 
 class ItemAdmin(admin.ModelAdmin):
     date_hierarchy = 'timestamp'
@@ -25,7 +25,7 @@ class PhotoAdmin(admin.ModelAdmin):
     search_fields = ('title', 'description', 'taken_by')
 
 class WebSearchResultInline(admin.TabularInline):
-    model = WebSearchResultInline
+    model = WebSearchResult
 
 class WebSearchAdmin(admin.ModelAdmin):
     list_display = ('query',)
