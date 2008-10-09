@@ -2,6 +2,7 @@ import datetime
 from django.db import models
 from django.db.models import signals
 from django.contrib.contenttypes.models import ContentType
+from django.utils.encoding import force_unicode
 from tagging.fields import TagField
 
 class ItemManager(models.Manager):
@@ -53,7 +54,7 @@ class ItemManager(models.Manager):
         ctype = ContentType.objects.get_for_model(instance)
         item, created = self.get_or_create(
             content_type = ctype, 
-            object_id = instance._get_pk_val(),
+            object_id = force_unicode(instance._get_pk_val()),
             defaults = dict(
                 timestamp = timestamp,
                 source = source,

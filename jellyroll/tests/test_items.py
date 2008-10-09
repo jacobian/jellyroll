@@ -12,7 +12,7 @@ class BookmarkTest(TestCase):
     fixtures = ["bookmarks.json"]
         
     def testItemWorkage(self):
-        i = Item.objects.get(content_type=CT(Bookmark), object_id=1)
+        i = Item.objects.get(content_type=CT(Bookmark), object_id="1")
         self.assertEqual(i.url, i.object.url)
         self.assertEqual(i.object_str, str(i.object))
             
@@ -20,7 +20,7 @@ class TrackTest(TestCase):
     fixtures = ["tracks.json"]
         
     def testTrack(self):
-        i = Item.objects.get(content_type=CT(Track), object_id=1)
+        i = Item.objects.get(content_type=CT(Track), object_id="1")
         self.assertEqual(str(i), "Track: Outkast - The Train (feat. Scar & Sleepy Brown)")
         
 class PhotosTest(TestCase):
@@ -30,11 +30,11 @@ class PhotosTest(TestCase):
         settings.FLICKR_USERNAME = "jacobian"   
 
     def testPhotoItem(self):
-        i = Item.objects.get(content_type=CT(Photo), object_id=1)
+        i = Item.objects.get(content_type=CT(Photo), object_id="1")
         self.assertEqual(i.url, "http://www.flickr.com/photos/jacobian/1/")
         
     def testImageURLs(self):
-        p = Photo.objects.get(pk=1)
+        p = Photo.objects.get(pk="1")
         self.assertEqual(p.image_url, "http://static.flickr.com/123/1_1234567890.jpg")
         self.assertEqual(p.square_url, "http://static.flickr.com/123/1_1234567890_s.jpg")
         self.assertEqual(p.thumbnail_url, "http://static.flickr.com/123/1_1234567890_t.jpg")
@@ -67,17 +67,17 @@ class PhotosTest(TestCase):
         self.assertEqual(cc_sa.must_share_alike, True)
         
     def testCommercialRepublishRights(self):
-        cc_nc_nd = Photo.objects.get(pk=4)
+        cc_nc_nd = Photo.objects.get(pk="4")
         saved, settings.SITE_IS_COMMERCIAL = getattr(settings, 'SITE_IS_COMMERCIAL', False), True
         self.assertEqual(cc_nc_nd.can_republish, False)
         settings.SITE_IS_COMMERCIAL = saved
         
     def testEXIF(self):
-        p = Photo.objects.get(pk=1)
+        p = Photo.objects.get(pk="1")
         self.assertEqual(p.exif, {})
         p.exif = {"Make" : "Nokia 6682", "Aperture" : "f/3.2"}
         p.save()
-        p = Photo.objects.get(pk=1)
+        p = Photo.objects.get(pk="1")
         self.assertEqual(p.exif, {"Make" : "Nokia 6682", "Aperture" : "f/3.2"})
         
 class CodeCommitTest(TestCase):
