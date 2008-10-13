@@ -24,8 +24,13 @@ log = logging.getLogger("jellyroll.providers.gsearch")
 #
 
 def enabled():
-    return hasattr(settings, 'GOOGLE_USERNAME') and hasattr(settings, 'GOOGLE_PASSWORD')
-    
+    ok = hasattr(settings, 'GOOGLE_USERNAME') and hasattr(settings, 'GOOGLE_PASSWORD')
+    if not ok:
+        log.warn('The Google Search provider is not available because the '
+                 'GOOGLE_USERNAME and/or GOOGLE_PASSWORD settings are '
+                 'undefined.')
+    return ok
+
 def update():
     feed = feedparser.parse(RSS_URL % (settings.GOOGLE_USERNAME, settings.GOOGLE_PASSWORD))
     for entry in feed.entries:

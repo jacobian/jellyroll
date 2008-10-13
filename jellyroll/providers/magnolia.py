@@ -34,7 +34,12 @@ class MagnoliaClient(object):
 log = logging.getLogger("jellyroll.providers.magnolia")
 
 def enabled():
-    return hasattr(settings, 'MAGNOLIA_API_KEY') and hasattr(settings, 'MAGNOLIA_USERNAME')
+    ok = hasattr(settings, 'MAGNOLIA_API_KEY') and hasattr(settings, 'MAGNOLIA_USERNAME')
+    if not ok:
+        log.warn('The Magnolia provider is not available because the '
+                 'MAGNOLIA_API_KEY and/or MAGNOLIA_USERNAME settings are '
+                 'undefined.')
+    return ok
     
 def update():
     magnolia = MagnoliaClient(settings.MAGNOLIA_API_KEY)

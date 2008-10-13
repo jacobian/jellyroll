@@ -16,7 +16,12 @@ log = logging.getLogger("jellyroll.providers.youtube")
 # Public API
 #
 def enabled():
-    return hasattr(settings, "YOUTUBE_USERNAME") and hasattr(settings, "YOUTUBE_DEVELOPER_ID")
+    ok = hasattr(settings, "YOUTUBE_USERNAME") and hasattr(settings, "YOUTUBE_DEVELOPER_ID")
+    if not ok:
+        log.warn('The Youtube provider is not available because the '
+                 'YOUTUBE_USERNAME and/or YOUTUBE_DEVELOPER_ID settings are '
+                 'undefined.')
+    return ok
 
 def update():
     res = youtube.users.list_favorite_videos({

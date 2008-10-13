@@ -45,7 +45,12 @@ class DeliciousClient(object):
 log = logging.getLogger("jellyroll.providers.delicious")
 
 def enabled():
-    return hasattr(settings, 'DELICIOUS_USERNAME') and hasattr(settings, 'DELICIOUS_PASSWORD')
+    ok = hasattr(settings, 'DELICIOUS_USERNAME') and hasattr(settings, 'DELICIOUS_PASSWORD')
+    if not ok:
+        log.warn('The Delicious provider is not available because the '
+                 'DELICIOUS_USERNAME and/or DELICIOUS_PASSWORD settings are '
+                 'undefined.')
+    return ok
     
 def update():
     delicious = DeliciousClient(settings.DELICIOUS_USERNAME, settings.DELICIOUS_PASSWORD)

@@ -50,9 +50,14 @@ class FlickrClient(object):
 # Public API
 #
 def enabled():
-    return (hasattr(settings, "FLICKR_API_KEY") and
-            hasattr(settings, "FLICKR_USER_ID") and
-            hasattr(settings, "FLICKR_USERNAME"))
+    ok = (hasattr(settings, "FLICKR_API_KEY") and
+          hasattr(settings, "FLICKR_USER_ID") and
+          hasattr(settings, "FLICKR_USERNAME"))
+    if not ok:
+      log.warn('The Flickr provider is not available because the '
+               'FLICKR_API_KEY, FLICKR_USER_ID, and/or FLICKR_USERNAME settings '
+               'are undefined.')
+    return ok
 
 def update():
     flickr = FlickrClient(settings.FLICKR_API_KEY)

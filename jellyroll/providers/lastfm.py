@@ -29,7 +29,11 @@ ARTIST_TAGS_URL   = "http://ws.audioscrobbler.com/1.0/artist/%s/toptags.xml"
 log = logging.getLogger("jellyroll.providers.lastfm")
 
 def enabled():
-    return hasattr(settings, 'LASTFM_USERNAME')
+    ok = hasattr(settings, 'LASTFM_USERNAME')
+    if not ok:
+        log.warn('The Last.fm provider is not available because the '
+                 'LASTFM_USERNAME settings is undefined.')
+    return ok
 
 def update():
     last_update_date = Item.objects.get_last_update_of_model(Track)

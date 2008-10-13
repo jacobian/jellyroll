@@ -18,7 +18,11 @@ log = logging.getLogger("jellyroll.providers.svn")
 # Public API
 #
 def enabled():
-    return pysvn is not None
+    ok = pysvn is not None
+    if not ok:
+        log.warn("The SVN provider is not available because the pysvn module "
+                 "isn't installed.")
+    return ok
 
 def update():
     for repository in CodeRepository.objects.filter(type="svn"):
