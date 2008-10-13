@@ -1,5 +1,6 @@
 import logging
 import optparse
+import jellyroll.providers
 from django.core.management.base import BaseCommand
 
 class Command(BaseCommand):
@@ -44,7 +45,6 @@ class Command(BaseCommand):
         jellyroll.providers.update(options['providers'])
 
     def available_providers(self):
-        import jellyroll.providers
         return jellyroll.providers.active_providers()
 
     def print_providers(self):
