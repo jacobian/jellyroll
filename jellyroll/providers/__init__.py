@@ -10,9 +10,9 @@ log = logging.getLogger("jellyroll.update")
 
 def active_providers():
     """
-    Return a list of active, enabled providers.
+    Return a dict of {name: module} of active, enabled providers.
     """
-    providers = []
+    providers = {}
     for provider in settings.JELLYROLL_PROVIDERS:
         try:
             mod = __import__(provider, '', '', [''])
@@ -20,29 +20,24 @@ def active_providers():
             log.error("Couldn't import provider %r: %s" % (provider, e))
             raise
         if mod.enabled():
-            providers.append(provider)
-    return sorted(providers)
+            providers[provider] = mod
+    return providers
     
 def update(providers):
     """
     Update a given set of providers. If the list is empty, it means update all
     of 'em.
     """
-    if not providers:
-        providers = settings.JELLYROLL_PROVIDERS
-    else:
-        providers = set(providers).intersection(set(settings.JELLYROLL_PROVIDERS))
-
+    active = active_providers()
+    if providers is None:
+        providers = active.keys()
+        
     for provider in providers:
         log.debug("Updating from provider %r", provider)
         try:
-            mod = __import__(provider, '', '', [''])
-        except ImportError, e:
-            log.error("Couldn't import %r: %s" % (provider, e))
-            continue
-
-        if not mod.enabled():
-            log.info("Skipping %r: enabled() returned False", provider)
+            mod = active[provider]
+        except KeyError:
+            log.error("Unknown provider: %r" % provider)
             continue
 
         log.info("Running '%s.update()'", provider)

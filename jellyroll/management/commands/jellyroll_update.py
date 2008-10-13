@@ -48,7 +48,8 @@ class Command(BaseCommand):
         return jellyroll.providers.active_providers()
 
     def print_providers(self):
+        available = sorted(self.available_providers().keys())
         print "Available data providers:"
-        for provider in self.available_providers():
+        for provider in available:
             print "   ", provider
         
