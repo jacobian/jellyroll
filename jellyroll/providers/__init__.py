@@ -1,3 +1,5 @@
+import os
+import glob
 import logging
 from django.conf import settings
 
@@ -14,14 +16,30 @@ def active_providers():
     """
     providers = {}
     for provider in settings.JELLYROLL_PROVIDERS:
-        try:
-            mod = __import__(provider, '', '', [''])
-        except ImportError, e:
-            log.error("Couldn't import provider %r: %s" % (provider, e))
-            raise
-        if mod.enabled():
-            providers[provider] = mod
+        if provider.endswith('.*'):
+            to_load = expand_star(provider)
+        else:
+            to_load = [provider]
+        for p in to_load:
+            try:
+                mod = __import__(p, '', '', [''])
+            except ImportError, e:
+                log.error("Couldn't import provider %r: %s" % (p, e))
+                raise
+            if mod.enabled():
+                providers[p] = mod
     return providers
+    
+def expand_star(mod_name):
+    """
+    Expand something like 'jellyroll.providers.*' into a list of all the modules
+    there.
+    """
+    expanded = []
+    mod_dir = os.path.dirname(__import__(mod_name[:-2], {}, {}, ['']).__file__)
+    for f in glob.glob1(mod_dir, "[!_]*.py"):
+        expanded.append('%s.%s' % (mod_name[:-2], f[:-3]))
+    return expanded
     
 def update(providers):
     """
@@ -31,6 +49,8 @@ def update(providers):
     active = active_providers()
     if providers is None:
         providers = active.keys()
+    else:
+        providers = set(active.keys()).intersection(providers)
         
     for provider in providers:
         log.debug("Updating from provider %r", provider)

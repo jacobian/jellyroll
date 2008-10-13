@@ -1,0 +1,15 @@
+import unittest
+import jellyroll.providers
+
+class MiscTests(unittest.TestCase):
+    def test_providers_expand_star(self):
+        expanded = jellyroll.providers.expand_star("jellyroll.providers.*")
+        self.assertEqual(expanded, [
+            'jellyroll.providers.delicious',
+            'jellyroll.providers.flickr',
+            'jellyroll.providers.gsearch',
+            'jellyroll.providers.lastfm',
+            'jellyroll.providers.magnolia',
+            'jellyroll.providers.svn',
+            'jellyroll.providers.youtube',
+        ])
