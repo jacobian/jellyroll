@@ -45,7 +45,7 @@ def _update_repository(repository):
 def _handle_revision(repository, r):
     log.debug("Handling [%s] from %s" % (r.revision.number, repository.url))
     ci, created = CodeCommit.objects.get_or_create(
-        revision = r.revision.number,
+        revision = str(r.revision.number),
         repository = repository,
         defaults = {"message": smart_unicode(r.message)}
     )

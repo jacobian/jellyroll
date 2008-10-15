@@ -271,6 +271,7 @@ class Video(models.Model):
 
 SCM_CHOICES = (
     ("svn", "Subversion"),
+    ("git", "Git"),
 )
 
 class CodeRepository(models.Model):
@@ -298,14 +299,23 @@ class CodeCommit(models.Model):
     A code change you checked in.
     """
     repository = models.ForeignKey(CodeRepository, related_name="commits")
-    revision = models.PositiveSmallIntegerField()
+    revision = models.CharField(max_length=200)
     message = models.TextField()
 
     class Meta:
         ordering = ["-revision"]
 
     def __unicode__(self):
-        return "[%s] %s" % (self.revision, text.truncate_words(self.message, 10))
+        return "[%s] %s" % (self.format_revision(), text.truncate_words(self.message, 10))
+
+    def format_revision(self):
+        """
+        Shorten hashed revisions for nice reading.
+        """
+        try:
+            return str(int(self.revision))
+        except TypeError:
+            return self.revision[:7]
 
     def url(self):
         if self.repository.public_changeset_template:
