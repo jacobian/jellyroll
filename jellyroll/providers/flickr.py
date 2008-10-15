@@ -71,7 +71,7 @@ def update():
     page = 1
     while True:
         log.debug("Fetching page %s of photos", page)
-        resp = flickr.people.getPublicPhotos(user_id=settings.FLICKR_USER_ID, extras="license,date_taken", per_page="50", page=str(page))
+        resp = flickr.people.getPublicPhotos(user_id=settings.FLICKR_USER_ID, extras="license,date_taken", per_page="500", page=str(page))
         photos = resp["photos"]
         if page > photos["pages"]:
             log.debug("Ran out of photos; stopping.")
