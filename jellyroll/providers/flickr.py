@@ -107,7 +107,7 @@ def _handle_photo(flickr, photo_id, secret, license, timestamp):
     
     log.debug("Handling photo: %r (taken %s)" % (title, timestamp))
     photo, created = Photo.objects.get_or_create(
-        photo_id      = photo_id,
+        photo_id      = str(photo_id),
         defaults = dict(
             server_id     = server_id,
             secret        = secret,
