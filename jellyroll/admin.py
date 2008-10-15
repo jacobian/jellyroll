@@ -1,3 +1,4 @@
+import django.forms
 from django.contrib import admin
 from jellyroll.models import Item, Bookmark, Track, Photo, WebSearch
 from jellyroll.models import WebSearchResult, Video, CodeRepository, CodeCommit
@@ -38,8 +39,17 @@ class VideoAdmin(admin.ModelAdmin):
     list_display = ('title',)
 
 class CodeRepositoryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'type')
+    list_display = ('name', 'type', 'url')
     prepopulated_fields = {"slug": ("name",)}
+
+    class CodeRepositoryForm(django.forms.ModelForm):
+        class Meta:
+            model = CodeRepository
+            
+        # Override the URL field to be more permissive
+        url = django.forms.CharField(required=True, max_length=100)
+        
+    form = CodeRepositoryForm
 
 class CodeCommitAdmin(admin.ModelAdmin):
     list_display = ('__unicode__', 'repository')

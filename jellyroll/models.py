@@ -282,7 +282,7 @@ class CodeRepository(models.Model):
     type = models.CharField(max_length=10, choices=SCM_CHOICES)
     name = models.CharField(max_length=100)
     slug = models.SlugField()
-    username = models.CharField(max_length=100, help_text="Your username for this SCM.")
+    username = models.CharField(max_length=100, help_text="Your username/email for this SCM.")
     public_changeset_template = models.URLField(
         verify_exists = False, blank = True,
         help_text = "Template for viewing a changeset publically. Use '%s' for the revision number")
@@ -314,7 +314,7 @@ class CodeCommit(models.Model):
         """
         try:
             return str(int(self.revision))
-        except TypeError:
+        except ValueError:
             return self.revision[:7]
 
     def url(self):
