@@ -7,6 +7,7 @@ class MiscTests(unittest.TestCase):
         self.assertEqual(expanded, [
             'jellyroll.providers.delicious',
             'jellyroll.providers.flickr',
+            'jellyroll.providers.gitscm',
             'jellyroll.providers.gsearch',
             'jellyroll.providers.lastfm',
             'jellyroll.providers.magnolia',
