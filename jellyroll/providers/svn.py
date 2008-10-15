@@ -49,9 +49,10 @@ def _handle_revision(repository, r):
         repository = repository,
         defaults = {"message": smart_unicode(r.message)}
     )
-    return Item.objects.create_or_update(
-        instance = ci, 
-        timestamp = datetime.datetime.fromtimestamp(r.date),
-        source = "%s:%s" % (__name__, repository.url),
-    )
+    if created:
+        return Item.objects.create_or_update(
+            instance = ci, 
+            timestamp = datetime.datetime.fromtimestamp(r.date),
+            source = "%s:%s" % (__name__, repository.url),
+        )
 _handle_revision = transaction.commit_on_success(_handle_revision)
