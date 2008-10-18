@@ -61,7 +61,7 @@ def _create_local_repo(repository):
     res = g.clone(repository.url)
     
     # This is pretty nasty.
-    m = re.match('^Initialized empty Git repository in (.*)$', res)
+    m = re.match('^Initialized empty Git repository in (.*)', res)
     repo_location = m.group(1).rstrip('/')
     
     return working_dir, git.Repo(repo_location)
