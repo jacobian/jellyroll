@@ -8,7 +8,7 @@ from jellyroll.models import Item, VideoSource, Video
 from jellyroll.providers import utils
 
 TAG_SCHEME = 'http://gdata.youtube.com/schemas/2007/keywords.cat'
-FEED_URL = 'http://gdata.youtube.com/feeds/api/users/jacobkm/favorites'
+FEED_URL = 'http://gdata.youtube.com/feeds/api/users/%s/favorites?v=2&start-index=%s&max-results=%s'
 
 log = logging.getLogger("jellyroll.providers.youtube")
 
@@ -27,7 +27,7 @@ def update():
     max_results = 50
     while True:
         log.debug("Fetching videos %s - %s" % (start_index, start_index+max_results-1))
-        feed = feedparser.parse(FEED_URL + '?v=2&start-index=%s&max-results=%s' % (start_index, max_results))
+        feed = feedparser.parse(FEED_URL % (settings.YOUTUBE_USERNAME, start_index, max_results))
         for entry in feed.entries:            
             if 'link' in entry:
                 url = entry.link
