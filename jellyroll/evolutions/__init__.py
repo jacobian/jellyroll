@@ -3,4 +3,5 @@ SEQUENCE = [
     'item_id_to_text',
     'codecommit_add_new_revision',
     'codecommit_drop_old_revision',
+    'item_tags_max_length',
 ]

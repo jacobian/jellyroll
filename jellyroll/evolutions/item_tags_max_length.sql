@@ -1,0 +1,1 @@
+ALTER TABLE jellyroll_item ALTER COLUMN tags TYPE varchar(2500);

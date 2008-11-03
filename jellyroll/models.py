@@ -22,7 +22,7 @@ class Item(models.Model):
     # "Standard" metadata each object provides.
     url = models.URLField(blank=True)
     timestamp = models.DateTimeField()
-    tags = TagField()
+    tags = TagField(max_length=2500)
     
     # Metadata about where the object "came from" -- used by data providers to
     # figure out which objects to update when asked.
