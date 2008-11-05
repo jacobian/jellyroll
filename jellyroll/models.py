@@ -57,11 +57,11 @@ class Bookmark(models.Model):
     thumbnail field for ma.gnolia users.
     """
     
-    url           = models.URLField(unique=True)
+    url           = models.URLField(unique=True, max_length=1000)
     description   = models.CharField(max_length=255)
     extended      = models.TextField(blank=True)
     thumbnail     = models.ImageField(upload_to="img/jellyroll/bookmarks/%Y/%m", blank=True)
-    thumbnail_url = models.URLField(blank=True, verify_exists=False)
+    thumbnail_url = models.URLField(blank=True, verify_exists=False, max_length=1000)
     
     def __unicode__(self):
         return self.url
