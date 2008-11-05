@@ -78,12 +78,15 @@ def _tags_for_track(artist_name, track_name):
                 return ""
             else:
                 raise
+        except SyntaxError:
+            return ""
         for t in xml.getiterator("tag"):
             count = utils.safeint(t.find("count").text)
             if count >= getattr(settings, 'LASTFM_TAG_USAGE_THRESHOLD', 15):
                 tags.add(slugify(smart_unicode(t.find("name").text)))            
     return " ".join(tags)
 
+@transaction.commit_on_success
 def _handle_track(artist_name, artist_mbid, track_name, track_mbid, url, timestamp, tags):
     t = Track(
         artist_name = artist_name,
@@ -92,10 +95,12 @@ def _handle_track(artist_name, artist_mbid, track_name, track_mbid, url, timesta
         track_mbid  = track_mbid is not None and track_mbid or '',
         artist_mbid = artist_mbid is not None and artist_mbid or '',
     )
-    return Item.objects.create_or_update(
-        instance = t, 
-        timestamp = timestamp, 
-        tags = tags,
-        source = __name__
-    )
-_handle_track = transaction.commit_on_success(_handle_track)
+    try:
+        Item.objects.get(source=__name__, timestamp=timestamp)
+    except Item.DoesNotExist:
+        return Item.objects.create_or_update(
+            instance = t,
+            timestamp = timestamp,
+            tags = tags,
+            source = __name__
+        )
