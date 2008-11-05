@@ -322,6 +322,15 @@ class CodeCommit(models.Model):
             return self.repository.public_changeset_template % self.revision
         return ""
     url = property(url)
+    
+class Message(models.Model):
+    """
+    A message, status update, or "tweet".
+    """
+    message = models.TextField()
+    
+    def __unicode__(self):
+        return text.truncate_words(self.message, 30)
 
 # Register item objects to be "followed"
 Item.objects.follow_model(Bookmark)
@@ -330,3 +339,4 @@ Item.objects.follow_model(Photo)
 Item.objects.follow_model(WebSearch)
 Item.objects.follow_model(Video)
 Item.objects.follow_model(CodeCommit)
+Item.objects.follow_model(Message)
