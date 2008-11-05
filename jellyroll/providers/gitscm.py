@@ -4,6 +4,7 @@ import logging
 import datetime
 import shutil
 import tempfile
+from unipath import FSPath as Path
 from django.db import transaction
 from django.utils.encoding import smart_unicode
 from jellyroll.models import Item, CodeRepository, CodeCommit
@@ -46,6 +47,7 @@ def _update_repository(repository):
 
     working_dir, repo = _create_local_repo(repository)
     commits = repo.commits_since(since=last_update_date.strftime("%Y-%m-%d"))
+    log.debug("Handling %s commits", len(commits))
     for commit in reversed(commits):
         if commit.author.email == repository.username:
             _handle_revision(repository, commit)
@@ -62,8 +64,9 @@ def _create_local_repo(repository):
     
     # This is pretty nasty.
     m = re.match('^Initialized empty Git repository in (.*)', res)
-    repo_location = m.group(1).rstrip('/')
-    
+    repo_location = Path(m.group(1).rstrip('/'))
+    if repo_location.name == ".git":
+        repo_location = repo_location.parent
     return working_dir, git.Repo(repo_location)
 
 @transaction.commit_on_success
