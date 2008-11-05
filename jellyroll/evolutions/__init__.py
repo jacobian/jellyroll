@@ -5,4 +5,5 @@ SEQUENCE = [
     'codecommit_drop_old_revision',
     'item_tags_max_length',
     'bookmark_urls_max_length',
+    'item_url_max_length',
 ]

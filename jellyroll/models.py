@@ -20,7 +20,7 @@ class Item(models.Model):
     object = generic.GenericForeignKey('content_type', 'object_id')
     
     # "Standard" metadata each object provides.
-    url = models.URLField(blank=True)
+    url = models.URLField(blank=True, max_length=1000)
     timestamp = models.DateTimeField()
     tags = TagField(max_length=2500)
     
