@@ -9,16 +9,11 @@ from jellyroll.providers import utils
 from jellyroll.models import Item, Track
 from django.template.defaultfilters import slugify
 
-try:
-    set
-except NameError:
-    from sets import Set as set     # Python 2.3 fallback
-
 #
 # API URLs
 #
 
-RECENT_TRACKS_URL = "http://ws.audioscrobbler.com/1.0/user/%s/recenttracks.xml"
+RECENT_TRACKS_URL = "http://ws.audioscrobbler.com/1.0/user/%s/recenttracks.xml?limit=100"
 TRACK_TAGS_URL    = "http://ws.audioscrobbler.com/1.0/track/%s/%s/toptags.xml"
 ARTIST_TAGS_URL   = "http://ws.audioscrobbler.com/1.0/artist/%s/toptags.xml"
 
@@ -49,7 +44,6 @@ def update():
         url         = smart_unicode(track.find('url').text)
         timestamp   = datetime.datetime.fromtimestamp(int(track.find('date').get('uts')))
         if timestamp > last_update_date:
-            log.debug("Handling track: %r - %r", artist_name, track_name)
             tags = _tags_for_track(artist_name, track_name)
             _handle_track(artist_name, artist_mbid, track_name, track_mbid, url, timestamp, tags)
 
@@ -83,7 +77,8 @@ def _tags_for_track(artist_name, track_name):
         for t in xml.getiterator("tag"):
             count = utils.safeint(t.find("count").text)
             if count >= getattr(settings, 'LASTFM_TAG_USAGE_THRESHOLD', 15):
-                tags.add(slugify(smart_unicode(t.find("name").text)))            
+                tag = slugify(smart_unicode(t.find("name").text))
+                tags.add(tag[:50])
     return " ".join(tags)
 
 @transaction.commit_on_success
@@ -98,6 +93,7 @@ def _handle_track(artist_name, artist_mbid, track_name, track_mbid, url, timesta
     try:
         Item.objects.get(source=__name__, timestamp=timestamp)
     except Item.DoesNotExist:
+        log.debug("Saving track: %r - %r", artist_name, track_name)
         return Item.objects.create_or_update(
             instance = t,
             timestamp = timestamp,
