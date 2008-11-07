@@ -1,13 +1,15 @@
+import md5
 import datetime
-import urllib
 import logging
 from django.conf import settings
 from django.db import transaction
-from django.utils.encoding import smart_unicode
+from django.template.defaultfilters import slugify
+from django.utils.functional import memoize
+from django.utils.http import urlquote
+from django.utils.encoding import smart_str, smart_unicode
 from httplib2 import HttpLib2Error
 from jellyroll.providers import utils
 from jellyroll.models import Item, Track
-from django.template.defaultfilters import slugify
 
 #
 # API URLs
@@ -43,7 +45,7 @@ def update():
         track_mbid  = smart_unicode(track.find('mbid').text)
         url         = smart_unicode(track.find('url').text)
         timestamp   = datetime.datetime.fromtimestamp(int(track.find('date').get('uts')))
-        if timestamp > last_update_date:
+        if not _track_exists(artist_name, track_name, timestamp):
             tags = _tags_for_track(artist_name, track_name)
             _handle_track(artist_name, artist_mbid, track_name, track_mbid, url, timestamp, tags)
 
@@ -59,27 +61,35 @@ def _tags_for_track(artist_name, track_name):
     """
     
     urls = [
-        ARTIST_TAGS_URL % (urllib.quote(artist_name)),
-        TRACK_TAGS_URL % (urllib.quote(artist_name), urllib.quote(track_name)),
+        ARTIST_TAGS_URL % (urlquote(artist_name)),
+        TRACK_TAGS_URL % (urlquote(artist_name), urlquote(track_name)),
     ]
     tags = set()
     for url in urls:
-        log.debug("Fetching tags from %r", url)
-        try:
-            xml = utils.getxml(url)
-        except HttpLib2Error, e:
-            if e.code == 408:
-                return ""
-            else:
-                raise
-        except SyntaxError:
+        tags.update(_tags_for_url(url))
+        
+def _tags_for_url(url):
+    tags = set()
+    try:
+        xml = utils.getxml(url)
+    except HttpLib2Error, e:
+        if e.code == 408:
             return ""
-        for t in xml.getiterator("tag"):
-            count = utils.safeint(t.find("count").text)
-            if count >= getattr(settings, 'LASTFM_TAG_USAGE_THRESHOLD', 15):
-                tag = slugify(smart_unicode(t.find("name").text))
-                tags.add(tag[:50])
-    return " ".join(tags)
+        else:
+            raise
+    except SyntaxError:
+        return ""
+    for t in xml.getiterator("tag"):
+        count = utils.safeint(t.find("count").text)
+        if count >= getattr(settings, 'LASTFM_TAG_USAGE_THRESHOLD', 15):
+            tag = slugify(smart_unicode(t.find("name").text))
+            tags.add(tag[:50])
+    
+    return tags
+            
+# Memoize tags to avoid unnecessary API calls.
+_tag_cache = {}
+_tags_for_url = memoize(_tags_for_url, _tag_cache, 1)
 
 @transaction.commit_on_success
 def _handle_track(artist_name, artist_mbid, track_name, track_mbid, url, timestamp, tags):
@@ -90,13 +100,25 @@ def _handle_track(artist_name, artist_mbid, track_name, track_mbid, url, timesta
         track_mbid  = track_mbid is not None and track_mbid or '',
         artist_mbid = artist_mbid is not None and artist_mbid or '',
     )
-    try:
-        Item.objects.get(source=__name__, timestamp=timestamp)
-    except Item.DoesNotExist:
+    if not _track_exists(artist_name, track_name, timestamp):
         log.debug("Saving track: %r - %r", artist_name, track_name)
         return Item.objects.create_or_update(
             instance = t,
             timestamp = timestamp,
             tags = tags,
-            source = __name__
+            source = __name__,
+            source_id = _source_id(artist_name, track_name, timestamp),
         )
+        
+def _source_id(artist_name, track_name, timestamp):
+    return md5.new(smart_str(artist_name) + smart_str(track_name) + str(timestamp)).hexdigest()
+    
+def _track_exists(artist_name, track_name, timestamp):
+    id = _source_id(artist_name, track_name, timestamp)
+    try:
+        Item.objects.get(source=__name__, source_id=id)
+    except Item.DoesNotExist:
+        return False
+    else:
+        return True
+
