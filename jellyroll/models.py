@@ -71,7 +71,7 @@ class Track(models.Model):
     
     artist_name = models.CharField(max_length=250)
     track_name  = models.CharField(max_length=250)
-    url         = models.URLField(blank=True)
+    url         = models.URLField(blank=True, max_length=1000)
     track_mbid  = models.CharField("MusicBrainz Track ID", max_length=36, blank=True)
     artist_mbid = models.CharField("MusicBrainz Artist ID", max_length=36, blank=True)
     
