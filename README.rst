@@ -18,5 +18,6 @@ Notes
    do not syndicate item dates in your local timezone (typically these services have
    settings for which you can specify your timezone). These services currently include:
 
-  * gitscm (stores all dates UTC)
-  * lastfm (published all dates UTC)
+  * gitscm (stores all dates UTC as time_struct)
+  * lastfm (publishes all dates in RSS as UTC timestamp)
+  * twitter (publishes all dates in RSS as UTC string)
