@@ -9,22 +9,16 @@ from django.db import transaction
 from django.utils.encoding import smart_unicode
 from jellyroll.models import Item, CodeRepository, CodeCommit
 from jellyroll.providers import utils
+from utils.datetime import JELLYROLL_ADJUST_DATETIME
 
 try:
     import git
 except ImportError:
     git = None
+if hasattr(settings,'JELLYROLL_ADJUST_DATETIME') and settings.JELLYROLL_ADJUST_DATETIME:
+    from jellyroll.utils.datetime import convert_naive_timestruct
 
 log = logging.getLogger("jellyroll.providers.gitscm")
-
-try:
-    from django.conf import settings
-    import pytz
-    UTC = pytz.timezone('UTC')
-    LOCAL = pytz.timezone(settings.TIME_ZONE)
-except ImportError:
-    log.error("Cannot import pytz package and consequently, all datetime objects will be naive. "
-              "In this particular case, e.g., all commit dates will be expressed in UTC.")
 
 #
 # Public API
@@ -87,11 +81,12 @@ def _handle_revision(repository, commit):
         defaults = {"message": smart_unicode(commit.message)}
     )
     if created:
-        try:
-            timestamp = datetime.datetime.fromtimestamp(time.mktime(commit.committed_date),tz=UTC)
-            timestamp = timestamp.astimezone(LOCAL)
-        except NameError:
+
+        if settings.JELLYROLL_ADJUST_DATETIME:
+            return convert_naive_timestruct(commit.committed_date)
+        else:
             timestamp = datetime.datetime.fromtimestamp(time.mktime(commit.committed_date))
+
         return Item.objects.create_or_update(
             instance = ci, 
             timestamp = timestamp,
