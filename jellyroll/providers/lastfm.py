@@ -10,8 +10,9 @@ from django.utils.encoding import smart_str, smart_unicode
 from httplib2 import HttpLib2Error
 from jellyroll.models import Item, Track
 from jellyroll.providers import utils
-from utils.datetime import JELLYROLL_ADJUST_DATETIME
 
+if utils.JELLYROLL_ADJUST_DATETIME:
+    from utils import convert_naive_timestamp
 
 #
 # API URLs
@@ -47,7 +48,7 @@ def update():
         track_mbid  = smart_unicode(track.find('mbid').text)
         url         = smart_unicode(track.find('url').text)
 
-        if JELLYROLL_ADJUST_DATETIME:
+        if utils.JELLYROLL_ADJUST_DATETIME:
             timestamp = convert_naive_timestamp(int(track.find('date').get('uts')))
         else:
             timestamp = datetime.datetime.fromtimestamp(int(track.find('date').get('uts')))

@@ -9,14 +9,15 @@ from django.db import transaction
 from django.utils.encoding import smart_unicode
 from jellyroll.models import Item, CodeRepository, CodeCommit
 from jellyroll.providers import utils
-from utils.datetime import JELLYROLL_ADJUST_DATETIME
 
 try:
     import git
 except ImportError:
     git = None
-if hasattr(settings,'JELLYROLL_ADJUST_DATETIME') and settings.JELLYROLL_ADJUST_DATETIME:
-    from jellyroll.utils.datetime import convert_naive_timestruct
+
+if utils.JELLYROLL_ADJUST_DATETIME:
+    from utils import convert_naive_timestruct
+
 
 log = logging.getLogger("jellyroll.providers.gitscm")
 
@@ -82,7 +83,7 @@ def _handle_revision(repository, commit):
     )
     if created:
 
-        if settings.JELLYROLL_ADJUST_DATETIME:
+        if utils.JELLYROLL_ADJUST_DATETIME:
             return convert_naive_timestruct(commit.committed_date)
         else:
             timestamp = datetime.datetime.fromtimestamp(time.mktime(commit.committed_date))
