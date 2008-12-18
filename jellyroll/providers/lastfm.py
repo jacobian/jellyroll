@@ -11,9 +11,6 @@ from httplib2 import HttpLib2Error
 from jellyroll.models import Item, Track
 from jellyroll.providers import utils
 
-if utils.JELLYROLL_ADJUST_DATETIME:
-    from utils import convert_naive_timestamp
-
 #
 # API URLs
 #
@@ -48,10 +45,10 @@ def update():
         track_mbid  = smart_unicode(track.find('mbid').text)
         url         = smart_unicode(track.find('url').text)
 
+        # date delivered as UTC
+        timestamp = datetime.datetime.fromtimestamp(int(track.find('date').get('uts')))
         if utils.JELLYROLL_ADJUST_DATETIME:
-            timestamp = convert_naive_timestamp(int(track.find('date').get('uts')))
-        else:
-            timestamp = datetime.datetime.fromtimestamp(int(track.find('date').get('uts')))
+            timestamp = utils.utc_to_local_timestamp(int(track.find('date').get('uts')))
 
         if not _track_exists(artist_name, track_name, timestamp):
             tags = _tags_for_track(artist_name, track_name)

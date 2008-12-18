@@ -15,9 +15,6 @@ try:
 except ImportError:
     git = None
 
-if utils.JELLYROLL_ADJUST_DATETIME:
-    from utils import convert_naive_timestruct
-
 
 log = logging.getLogger("jellyroll.providers.gitscm")
 
@@ -82,11 +79,10 @@ def _handle_revision(repository, commit):
         defaults = {"message": smart_unicode(commit.message)}
     )
     if created:
-
+        # stored as UTC
+        timestamp = datetime.datetime.fromtimestamp(time.mktime(commit.committed_date))
         if utils.JELLYROLL_ADJUST_DATETIME:
-            return convert_naive_timestruct(commit.committed_date)
-        else:
-            timestamp = datetime.datetime.fromtimestamp(time.mktime(commit.committed_date))
+            return utils.utc_to_local_timestamp(time.mktime(commit.committed_date))
 
         return Item.objects.create_or_update(
             instance = ci, 

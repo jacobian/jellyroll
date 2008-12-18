@@ -1,6 +1,7 @@
 import md5
 import datetime
 import logging
+import dateutil
 from django.conf import settings
 from django.db import transaction
 from django.template.defaultfilters import slugify
@@ -35,8 +36,12 @@ def update():
         message      = status.find('title')
         message_text = smart_unicode(message.text)
         url          = smart_unicode(status.find('link').text)
-        # perhaps i'm a rube, but it doesn't seem strptime will take a %z formatting argument :/
-        timestamp    = datetime.datetime.strptime(status.find('pubDate').text[:-6],"%a, %d %b %Y %H:%M:%S")
+
+        # pubDate delivered as UTC
+        timestamp    = dateutil.parser.parse(status.find('pubDate').text)
+        if utils.JELLYROLL_ADJUST_DATETIME:
+            timestamp = utils.utc_to_local_datetime(timestamp)
+
         if not _status_exists(message_text, url, timestamp):
             _handle_status(message_text, url, timestamp)
 

@@ -63,7 +63,6 @@ if hasattr(settings,'JELLYROLL_ADJUST_DATETIME'):
     JELLYROLL_ADJUST_DATETIME = settings.JELLYROLL_ADJUST_DATETIME
 
 if JELLYROLL_ADJUST_DATETIME:
-
     try:
         import pytz
     except ImportError:
@@ -71,21 +70,28 @@ if JELLYROLL_ADJUST_DATETIME:
         log = logging.getLogger('jellyroll.providers.utils')
         log.error("Cannot import pytz package and consequently, all datetime objects will be naive. "
                   "In this particular case, e.g., all commit dates will be expressed in UTC.")
+
     import datetime
     import time
 
     UTC = pytz.timezone('UTC')
     LOCAL = pytz.timezone(settings.TIME_ZONE)
 
-    def convert_naive_timestamp(ts,orig_tz=UTC):
+    def utc_to_local_datetime(dt):
+        """
+        Map datetime as UTC object to it's localtime counterpart.
+        """
+        return dt.astimezone(LOCAL)
+
+    def utc_to_local_timestamp(ts, orig_tz=UTC):
         """
         Convert a timestamp object into a tz-aware datetime object.
         """
-        timestamp = datetime.datetime.fromtimestamp(ts,tz=UTC)
+        timestamp = datetime.datetime.fromtimestamp(ts,tz=orig_tz)
         return timestamp.astimezone(LOCAL)
 
-    def convert_naive_timestruct(ts, orig_tz=UTC):
+    def utc_to_local_timestruct(ts, orig_tz=UTC):
         """
         Convert a timestruct object into a tz-aware datetime object.
         """
-        return convert_naive_timestamp(time.mktime(ts),orig_tz)
+        return utc_to_local_timestamp(time.mktime(ts),orig_tz)
