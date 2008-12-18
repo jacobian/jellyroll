@@ -6,15 +6,6 @@ from django.core.management.base import BaseCommand
 class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
         optparse.make_option(
-            '-v', '--verbosity', 
-            action='store', 
-            dest='verbosity', 
-            default='1',
-            type='choice', 
-            choices=['0', '1', '2'],
-            help='Verbosity level; 0=minimal output, 1=normal output, 2=all output'
-        ),
-        optparse.make_option(
             "-p", "--provider", 
             dest="providers", 
             action="append", 

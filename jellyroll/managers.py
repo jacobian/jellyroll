@@ -11,7 +11,7 @@ class ItemManager(models.Manager):
         super(ItemManager, self).__init__()
         self.models_by_name = {}
     
-    def create_or_update(self, instance, timestamp=None, tags="", source="INTERACTIVE", source_id="", **kwargs):
+    def create_or_update(self, instance, timestamp=None, url=None, tags="", source="INTERACTIVE", source_id="", **kwargs):
         """
         Create or update an Item from some instace.
         """
@@ -49,7 +49,11 @@ class ItemManager(models.Manager):
                 if isinstance(f, TagField):
                     tags = getattr(instance, f.attname)
                     break
-        
+
+        if not url:
+            if hasattr(instance,'url'):
+                url = instance.url
+
         # Create the Item object.
         ctype = ContentType.objects.get_for_model(instance)
         item, created = self.get_or_create(
@@ -60,6 +64,7 @@ class ItemManager(models.Manager):
                 source = source,
                 source_id = source_id,
                 tags = tags,
+                url = url,
             )
         )        
         item.tags = tags

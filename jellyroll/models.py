@@ -47,8 +47,6 @@ class Item(models.Model):
     def save(self, force_insert=False, force_update=False):
         ct = "%s_%s" % (self.content_type.app_label, self.content_type.model.lower())
         self.object_str = smart_unicode(self.object)
-        if hasattr(self.object, "url"):
-            self.url = self.object.url
         super(Item, self).save(force_insert, force_update)
 
 class Bookmark(models.Model):
