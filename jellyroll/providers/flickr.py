@@ -86,7 +86,6 @@ def update():
             photo_id = utils.safeint(photodict["id"])
             license = licenses[photodict["license"]]
             secret = smart_unicode(photodict["secret"])
-            server = smart_unicode(photodict["server"])
             _handle_photo(flickr, photo_id, secret, license, timestamp)
             
         page += 1
@@ -98,6 +97,7 @@ def update():
 def _handle_photo(flickr, photo_id, secret, license, timestamp):
     info = flickr.photos.getInfo(photo_id=photo_id, secret=secret)["photo"]
     server_id = utils.safeint(info["server"])
+    farm_id = utils.safeint(info["farm"])
     taken_by = smart_unicode(info["owner"]["username"])
     title = smart_unicode(info["title"]["_content"])
     description = smart_unicode(info["description"]["_content"])
@@ -110,6 +110,7 @@ def _handle_photo(flickr, photo_id, secret, license, timestamp):
         photo_id      = str(photo_id),
         defaults = dict(
             server_id     = server_id,
+            farm_id       = farm_id,
             secret        = secret,
             taken_by      = taken_by,
             cc_license    = license,
@@ -124,6 +125,7 @@ def _handle_photo(flickr, photo_id, secret, license, timestamp):
         photo.exif = _convert_exif(flickr.photos.getExif(photo_id=photo_id, secret=secret))
     else:
         photo.server_id     = server_id
+        photo.farm_id       = farm_id
         photo.secret        = secret
         photo.taken_by      = taken_by
         photo.cc_license    = license

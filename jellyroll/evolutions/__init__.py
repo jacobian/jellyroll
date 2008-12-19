@@ -7,4 +7,5 @@ SEQUENCE = [
     'bookmark_urls_max_length',
     'item_url_max_length',
     'track_url_max_length',
+    'photo_add_farm_id',
 ]
