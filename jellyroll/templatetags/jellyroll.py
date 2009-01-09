@@ -1,5 +1,6 @@
 import datetime
 import dateutil.parser
+import urllib
 from django import template
 from django.db import models
 from django.template.loader import render_to_string
@@ -277,3 +278,31 @@ class GetJellyrollItemsNode(template.Node):
             return dateutil.parser.parse(d)
         except ValueError:
             return None
+
+def get_jellyroll_recent_traffic(parser, token):
+    bits = token.split_contents()
+    if len(bits) != 4:
+        raise template.TemplateSyntaxError("%r tag takes three arguments" % bits[0])
+    elif bits[2] != 'as':
+        raise template.TemplateSyntaxError("second argument to %r tag should be 'as'" % bits[0])
+    return JellyrollRecentTrafficNode(bits[1],bits[3])
+get_jellyroll_recent_traffic = register.tag(get_jellyroll_recent_traffic)
+
+class JellyrollRecentTrafficNode(template.Node):
+    def __init__(self, days, context_var):
+        self.days = int(days)
+        self.context_var = context_var
+    def render(self, context):
+        data = []
+        start = datetime.datetime.now() - datetime.timedelta(days=self.days)
+        for offset in range(0,self.days):
+            dt = start+datetime.timedelta(days=offset)
+            data.append(
+                Item.objects. \
+                    filter(timestamp__year=dt.year). \
+                    filter(timestamp__month=dt.month). \
+                    filter(timestamp__day=dt.day). \
+                    count()
+                )
+        context[self.context_var] = data
+        return ''
