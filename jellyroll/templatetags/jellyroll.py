@@ -280,29 +280,50 @@ class GetJellyrollItemsNode(template.Node):
             return None
 
 def get_jellyroll_recent_traffic(parser, token):
+    oftypes = []
     bits = token.split_contents()
-    if len(bits) != 4:
+    if len(bits) < 4 or len(bits) > 5:
         raise template.TemplateSyntaxError("%r tag takes three arguments" % bits[0])
     elif bits[2] != 'as':
         raise template.TemplateSyntaxError("second argument to %r tag should be 'as'" % bits[0])
-    return JellyrollRecentTrafficNode(bits[1],bits[3])
+    if len(bits) > 4:
+        oftypes = bits[4]
+        print "oftypes: ", oftypes
+    return JellyrollRecentTrafficNode(bits[1],bits[3],oftypes)
 get_jellyroll_recent_traffic = register.tag(get_jellyroll_recent_traffic)
 
 class JellyrollRecentTrafficNode(template.Node):
-    def __init__(self, days, context_var):
+    def __init__(self, days, context_var, oftypes=[]):
         self.days = int(days)
+        self.oftypes = oftypes.split(",")
         self.context_var = context_var
     def render(self, context):
+        CT = ContentType.objects.get_for_model
         data = []
+        if self.oftypes:
+            data = {}
+            for item_type in self.oftypes:
+                data[item_type] = []
         start = datetime.datetime.now() - datetime.timedelta(days=self.days)
         for offset in range(0,self.days):
             dt = start+datetime.timedelta(days=offset)
-            data.append(
-                Item.objects. \
-                    filter(timestamp__year=dt.year). \
-                    filter(timestamp__month=dt.month). \
-                    filter(timestamp__day=dt.day). \
-                    count()
-                )
+            if self.oftypes:
+                for item_type in self.oftypes:
+                    qs = Item.objects.filter(content_type__id=CT(Item.objects.models_by_name[item_type]).id)
+                    data[item_type].append(
+                        qs. \
+                            filter(timestamp__year=dt.year). \
+                            filter(timestamp__month=dt.month). \
+                            filter(timestamp__day=dt.day). \
+                            count()
+                        )
+            else:
+                data.append(
+                    Item.objects. \
+                        filter(timestamp__year=dt.year). \
+                        filter(timestamp__month=dt.month). \
+                        filter(timestamp__day=dt.day). \
+                        count()
+                    )
         context[self.context_var] = data
         return ''
