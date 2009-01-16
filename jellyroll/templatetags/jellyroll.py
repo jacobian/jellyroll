@@ -294,7 +294,6 @@ def get_jellyroll_recent_traffic(parser, token):
         raise template.TemplateSyntaxError("second argument to %r tag should be 'as'" % bits[0])
     if len(bits) > 4:
         oftypes = bits[4]
-        print "oftypes: ", oftypes
     return JellyrollRecentTrafficNode(bits[1],bits[3],oftypes)
 get_jellyroll_recent_traffic = register.tag(get_jellyroll_recent_traffic)
 
