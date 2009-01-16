@@ -6,6 +6,12 @@ from django.db import models
 from django.template.loader import render_to_string
 from django.contrib.contenttypes.models import ContentType
 
+try:
+    from collections import defaultdict
+except ImportError:
+    defaultdict = None
+
+
 # Hack until relative imports
 Item = models.get_model("jellyroll", "item")
 
@@ -288,6 +294,7 @@ def get_jellyroll_recent_traffic(parser, token):
         raise template.TemplateSyntaxError("second argument to %r tag should be 'as'" % bits[0])
     if len(bits) > 4:
         oftypes = bits[4]
+        print "oftypes: ", oftypes
     return JellyrollRecentTrafficNode(bits[1],bits[3],oftypes)
 get_jellyroll_recent_traffic = register.tag(get_jellyroll_recent_traffic)
 
@@ -296,33 +303,31 @@ class JellyrollRecentTrafficNode(template.Node):
         self.days = int(days)
         self.oftypes = oftypes.split(",")
         self.context_var = context_var
+
     def render(self, context):
         CT = ContentType.objects.get_for_model
+        dt_start = datetime.date.today()
         data = []
+
         if self.oftypes:
-            data = {}
-            for item_type in self.oftypes:
-                data[item_type] = []
-        start = datetime.datetime.now() - datetime.timedelta(days=self.days)
+            if defaultdict:
+                data = defaultdict(list)
+            else:
+                for item_type in self.oftypes: data[item_type] = []
+
         for offset in range(0,self.days):
-            dt = start+datetime.timedelta(days=offset)
+            dt = dt_start - datetime.timedelta(days=offset)
+            step = datetime.timedelta(days=1)
             if self.oftypes:
                 for item_type in self.oftypes:
                     qs = Item.objects.filter(content_type__id=CT(Item.objects.models_by_name[item_type]).id)
                     data[item_type].append(
-                        qs. \
-                            filter(timestamp__year=dt.year). \
-                            filter(timestamp__month=dt.month). \
-                            filter(timestamp__day=dt.day). \
-                            count()
+                        qs.filter(timestamp__range=(dt-step,dt)).count()
                         )
             else:
                 data.append(
-                    Item.objects. \
-                        filter(timestamp__year=dt.year). \
-                        filter(timestamp__month=dt.month). \
-                        filter(timestamp__day=dt.day). \
-                        count()
+                    Item.objects.filter(timestamp__range=(dt-step,dt)).count()
                     )
+
         context[self.context_var] = data
         return ''
