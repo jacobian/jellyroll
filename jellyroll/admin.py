@@ -1,6 +1,6 @@
 import django.forms
 from django.contrib import admin
-from jellyroll.models import Item, Bookmark, Track, Photo, WebSearch
+from jellyroll.models import Item, Bookmark, Track, Photo, WebSearch, Message
 from jellyroll.models import WebSearchResult, Video, CodeRepository, CodeCommit
 
 class ItemAdmin(admin.ModelAdmin):
@@ -32,6 +32,9 @@ class WebSearchAdmin(admin.ModelAdmin):
     list_display = ('query',)
     inlines = [WebSearchResultInline]
 
+class MessageAdmin(admin.ModelAdmin):
+    list_display = ('message',)
+
 class WebSearchAdmin(admin.ModelAdmin):
     list_display = ('query',)
 
@@ -61,6 +64,7 @@ admin.site.register(Bookmark, BookmarkAdmin)
 admin.site.register(Track, TrackAdmin)
 admin.site.register(Photo, PhotoAdmin)
 admin.site.register(WebSearch, WebSearchAdmin)
+admin.site.register(Message, MessageAdmin)
 admin.site.register(Video, VideoAdmin)
 admin.site.register(CodeRepository, CodeRepositoryAdmin)
 admin.site.register(CodeCommit, CodeCommitAdmin)

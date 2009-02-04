@@ -335,9 +335,28 @@ class Message(models.Model):
     A message, status update, or "tweet".
     """
     message = models.TextField()
+    links = models.ManyToManyField('ContentLink',blank=True,null=True)
     
     def __unicode__(self):
         return text.truncate_words(self.message, 30)
+
+class ContentLink(models.Model):
+    """
+    A non-resource reference to be associated with
+    a model. 
+
+    In other words, not the canonical location
+    for a resource defined by a jellyroll model, but 
+    instead a topical resource given in the resource 
+    body itself in a format that varies across model
+    type.
+
+    """
+    url = models.URLField()
+    identifier = models.CharField(max_length=128)
+
+    def __unicode__(self):
+        return self.identifier
 
 # Register item objects to be "followed"
 Item.objects.follow_model(Bookmark)
