@@ -127,13 +127,13 @@ def _handle_status(message_text, url, timestamp):
             )
         item.save()
 
-    for link in links:
-        l = ContentLink(
-            url = link,
-            identifier = link,
-            )
-        l.save()
-        t.links.add(l)
+        for link in links:
+            l = ContentLink(
+                url = link,
+                identifier = link,
+                )
+            l.save()
+            t.links.add(l)
 
 def _source_id(message_text, url, timestamp):
     return md5.new(smart_str(message_text) + smart_str(url) + str(timestamp)).hexdigest()
