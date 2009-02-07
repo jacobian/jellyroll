@@ -53,17 +53,21 @@ def update():
 #
 
 TWITTER_TRANSFORM_MSG = False
+TWITTER_RETWEET_TXT = "Forwarding from %s: "
 try:
     TWITTER_TRANSFORM_MSG = settings.TWITTER_TRANSFORM_MSG
+    TWITTER_RETWEET_TXT = settings.TWITTER_RETWEET_TXT
 except AttributeError:
     pass
 
 if TWITTER_TRANSFORM_MSG:
     USER_LINK_TPL = "<a href='%s' title='%s'>%s</a>"
-    TAG_RE = re.compile(r'\#\w+')
-    USER_RE = re.compile(r'@\w+')
+    TAG_RE = re.compile(r'(?P<tag>\#\w+)')
+    USER_RE = re.compile(r'(?P<username>@\w+)')
+    RT_RE = re.compile(r'RT\s+(?P<username>@\w+)')
     USERNAME_RE = re.compile(r'^%s:'%settings.TWITTER_USERNAME)
-    URL_RE = re.compile( # taken from django.forms.fields
+    # taken from django.forms.fields.url_re
+    URL_RE = re.compile(
         r'https?://'
         r'(?:(?:[A-Z0-9-]+\.)+[A-Z]{2,6}|'
         r'localhost|'
@@ -71,8 +75,13 @@ if TWITTER_TRANSFORM_MSG:
         r'(?::\d+)?'
         r'(?:/?|/\S+)$', re.IGNORECASE)
 
+    def _transform_retweet(matchobj):
+        if '%s' in TWITTER_RETWEET_TXT:
+            return TWITTER_RETWEET_TXT % matchobj.group('username')
+        return TWITTER_RETWEET_TXT
+
     def _transform_user_ref_to_link(matchobj):
-        user = matchobj.group(0)[1:]
+        user = matchobj.group('username')[1:]
         link = USER_URL % user
         return USER_LINK_TPL % \
             (link,user,''.join(['@',user]))
@@ -84,7 +93,11 @@ if TWITTER_TRANSFORM_MSG:
         """
         links = list()
         tags = ""
-        
+
+        # remove leading username
+        message_text = USERNAME_RE.sub('',message_text)
+        # check for RT-type retweet syntax
+        message_text = RT_RE.sub(_transform_retweet,message_text)
         # replace @user references with links to their timeline
         message_text = USER_RE.sub(_transform_user_ref_to_link,message_text)
         # remove URLs referenced in message content
@@ -93,8 +106,6 @@ if TWITTER_TRANSFORM_MSG:
         # extract defacto #tag style tweet tags
         tags = ' '.join( [tag[1:] for tag in TAG_RE.findall(message_text)] )
         message_text = TAG_RE.sub('',message_text)
-        # remove leading username
-        message_text = USERNAME_RE.sub('',message_text)
 
         return (message_text.strip(),links,tags)
 
