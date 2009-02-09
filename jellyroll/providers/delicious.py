@@ -81,22 +81,23 @@ def _update_bookmarks_from_date(delicious, dt):
 _update_bookmarks_from_date = transaction.commit_on_success(_update_bookmarks_from_date)
 
 def _handle_bookmark(info):
-    b, created = Bookmark.objects.get_or_create(
-        url         = info['href'],
-        defaults = dict(
-            description = info['description'],
-            extended    = info.get('extended', ''),
+    if (info.has_key('shared') and settings.DELICIOUS_GETDNS) or (not info.has_key('shared')):
+        b, created = Bookmark.objects.get_or_create(
+            url         = info['href'],
+            defaults = dict(
+                description = info['description'],
+                extended    = info.get('extended', ''),
+            )
         )
-    )
-    if not created:
-        b.description = info['description']
-        b.extended = info.get('extended', '')
-        b.save()
-    return Item.objects.create_or_update(
-        instance = b, 
-        timestamp = utils.parsedate(info['time']), 
-        tags = info.get('tag', ''),
-        source = __name__,
-        source_id = info['hash'],
-    )
+        if not created:
+            b.description = info['description']
+            b.extended = info.get('extended', '')
+            b.save()
+        return Item.objects.create_or_update(
+            instance = b, 
+            timestamp = utils.parsedate(info['time']), 
+            tags = info.get('tag', ''),
+            source = __name__,
+            source_id = info['hash'],
+        )
 
