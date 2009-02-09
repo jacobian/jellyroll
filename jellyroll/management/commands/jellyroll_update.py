@@ -16,6 +16,15 @@ class Command(BaseCommand):
             action="store_true", 
             help="Display a list of active data providers."
         ),
+        optparse.make_option(
+            "--verbosity",
+            action="store",
+            dest="verbosity",
+            default="1",
+            type="choice",
+            choices=["0", "1", "2"],
+            help="Verbosity level; 0=minimal output, 1=normal output, 2=all output"
+        ),
     )
     
     def handle(self, *args, **options):
