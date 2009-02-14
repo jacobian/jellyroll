@@ -61,11 +61,11 @@ except AttributeError:
     pass
 
 if TWITTER_TRANSFORM_MSG:
-    USER_LINK_TPL = "<a href='%s' title='%s'>%s</a>"
+    USER_LINK_TPL = '<a href="%s" title="%s">%s</a>'
     TAG_RE = re.compile(r'(?P<tag>\#\w+)')
     USER_RE = re.compile(r'(?P<username>@\w+)')
     RT_RE = re.compile(r'RT\s+(?P<username>@\w+)')
-    USERNAME_RE = re.compile(r'^%s:'%settings.TWITTER_USERNAME)
+    USERNAME_RE = re.compile(r'^%s: ' % settings.TWITTER_USERNAME)
     # taken from django.forms.fields.url_re
     URL_RE = re.compile(
         r'https?://'
@@ -100,12 +100,16 @@ if TWITTER_TRANSFORM_MSG:
         message_text = RT_RE.sub(_transform_retweet,message_text)
         # replace @user references with links to their timeline
         message_text = USER_RE.sub(_transform_user_ref_to_link,message_text)
-        # remove URLs referenced in message content
+        # generate link list for ContentLink
         links = URL_RE.findall(message_text)
-        message_text = URL_RE.sub('',message_text)
-        # extract defacto #tag style tweet tags
+        # remove URLs referenced in message content
+        if not hasattr(settings, 'TWITTER_REMOVE_LINKS') or settings.TWITTER_REMOVE_LINKS == True:
+            message_text = URL_RE.sub('',message_text)
+        # generate tags list
         tags = ' '.join( [tag[1:] for tag in TAG_RE.findall(message_text)] )
-        message_text = TAG_RE.sub('',message_text)
+        # extract defacto #tag style tweet tags
+        if not hasattr(settings, 'TWITTER_REMOVE_TAGS') or settings.TWITTER_REMOVE_TAGS == True:
+            message_text = TAG_RE.sub('',message_text)
 
         return (message_text.strip(),links,tags)
 
