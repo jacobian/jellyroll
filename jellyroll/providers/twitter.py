@@ -73,7 +73,7 @@ if TWITTER_TRANSFORM_MSG:
         r'localhost|'
         r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'
         r'(?::\d+)?'
-        r'(?:/?|/\S+)$', re.IGNORECASE)
+        r'(?:/?|/\S+)', re.IGNORECASE)
 
     def _transform_retweet(matchobj):
         if '%s' in TWITTER_RETWEET_TXT:
@@ -102,6 +102,7 @@ if TWITTER_TRANSFORM_MSG:
         message_text = USER_RE.sub(_transform_user_ref_to_link,message_text)
         # remove URLs referenced in message content
         links = URL_RE.findall(message_text)
+        print "links: ",links
         message_text = URL_RE.sub('',message_text)
         # extract defacto #tag style tweet tags
         tags = ' '.join( [tag[1:] for tag in TAG_RE.findall(message_text)] )
