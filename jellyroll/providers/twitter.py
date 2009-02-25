@@ -66,14 +66,14 @@ if TWITTER_TRANSFORM_MSG:
     USER_RE = re.compile(r'(?P<username>@\w+)')
     RT_RE = re.compile(r'RT\s+(?P<username>@\w+)')
     USERNAME_RE = re.compile(r'^%s:'%settings.TWITTER_USERNAME)
-    # taken from django.forms.fields.url_re
+
+    # modified from django.forms.fields.url_re
     URL_RE = re.compile(
         r'https?://'
         r'(?:(?:[A-Z0-9-]+\.)+[A-Z]{2,6}|'
-        r'localhost|'
         r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'
         r'(?::\d+)?'
-        r'(?:/?|/\S+)', re.IGNORECASE)
+        r'(?:/\S+|/?)', re.IGNORECASE)
 
     def _transform_retweet(matchobj):
         if '%s' in TWITTER_RETWEET_TXT:
@@ -94,16 +94,24 @@ if TWITTER_TRANSFORM_MSG:
         links = list()
         tags = ""
 
+        # remove newlines
+        message_text = message_text.replace('\n','')
+        # remove URLs referenced in message content
+        # TODO: fix ungainly code below
+        links = [ link for link in URL_RE.findall(message_text) ]
+        link_ctr = 1
+        link_dict = {}
+        for link in URL_RE.finditer(message_text):
+            link_dict[link.group(0)] = link_ctr
+            link_ctr += 1
+        generate_link_num = lambda obj: "[%d]"%link_dict[obj.group(0)]
+        message_text = URL_RE.sub(generate_link_num,message_text)
         # remove leading username
         message_text = USERNAME_RE.sub('',message_text)
         # check for RT-type retweet syntax
         message_text = RT_RE.sub(_transform_retweet,message_text)
         # replace @user references with links to their timeline
         message_text = USER_RE.sub(_transform_user_ref_to_link,message_text)
-        # remove URLs referenced in message content
-        links = URL_RE.findall(message_text)
-        print "links: ",links
-        message_text = URL_RE.sub('',message_text)
         # extract defacto #tag style tweet tags
         tags = ' '.join( [tag[1:] for tag in TAG_RE.findall(message_text)] )
         message_text = TAG_RE.sub('',message_text)
