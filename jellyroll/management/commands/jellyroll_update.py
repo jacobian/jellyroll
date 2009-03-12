@@ -23,7 +23,7 @@ class Command(BaseCommand):
             '0': logging.WARN, 
             '1': logging.INFO, 
             '2': logging.DEBUG
-        }[options.get('verbosity')['0']]
+        }[options.get('verbosity', '0')]
         logging.basicConfig(level=level, format="%(name)s: %(levelname)s: %(message)s")
 
         if options['list_providers']:
