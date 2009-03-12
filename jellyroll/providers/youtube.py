@@ -4,6 +4,7 @@ import feedparser
 from django.conf import settings
 from django.db import transaction
 from django.utils.encoding import smart_unicode, smart_str
+from django.utils.encoding import DjangoUnicodeDecodeError
 from jellyroll.models import Item, VideoSource, Video
 from jellyroll.providers import utils
 
@@ -56,10 +57,18 @@ def update():
 def _handle_video(title, url, tags, timestamp):
     log.debug("Handling video: %s" % smart_str(title))
     source = VideoSource.objects.get(name="YouTube")
+    
+    # For some strange reason sometimes the YouTube API returns
+    # corrupted titles...
+    try:
+        title = smart_unicode(title)
+    except DjangoUnicodeDecodeError:
+        return
+        
     vid, created = Video.objects.get_or_create(
         url = url, 
         defaults = {
-            'title': smart_unicode(title), 
+            'title': title, 
             'source': source
         }
     )
