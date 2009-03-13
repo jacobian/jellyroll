@@ -47,8 +47,6 @@ class Item(models.Model):
     def save(self, force_insert=False, force_update=False):
         ct = "%s_%s" % (self.content_type.app_label, self.content_type.model.lower())
         self.object_str = smart_unicode(self.object)
-        if hasattr(self.object, "url"):
-            self.url = self.object.url
         super(Item, self).save(force_insert, force_update)
 
 class Bookmark(models.Model):
@@ -99,9 +97,10 @@ class Photo(models.Model):
     
     # Key Flickr info
     photo_id    = models.CharField(unique=True, primary_key=True, max_length=50)
+    farm_id     = models.PositiveSmallIntegerField(null=True)
     server_id   = models.PositiveSmallIntegerField()
     secret      = models.CharField(max_length=30, blank=True)
-    
+
     # Rights metadata
     taken_by    = models.CharField(max_length=100, blank=True)
     cc_license  = models.URLField(blank=True, choices=CC_LICENSES)
@@ -126,6 +125,12 @@ class Photo(models.Model):
             return {}
     exif = property(_get_exif, _set_exif, "Photo EXIF data, as a dict.")
     
+    def _get_farm(self):
+        if self.farm_id:
+            return ''.join(["farm",str(self.farm_id),"."])
+        return ''
+    farm = property(_get_farm)
+
     def __unicode__(self):
         return self.title
     
@@ -141,9 +146,11 @@ class Photo(models.Model):
     
     def get_image_url(self, size=None):
         if size in list('mstbo'):
-            return "http://static.flickr.com/%s/%s_%s_%s.jpg" % (self.server_id, self.photo_id, self.secret, size)
+            return "http://%sstatic.flickr.com/%s/%s_%s_%s.jpg" % \
+                (self.farm, self.server_id, self.photo_id, self.secret, size)
         else:
-            return "http://static.flickr.com/%s/%s_%s.jpg" % (self.server_id, self.photo_id, self.secret)
+            return "http://%sstatic.flickr.com/%s/%s_%s.jpg" % \
+                (self.farm, self.server_id, self.photo_id, self.secret)
     
     image_url       = property(lambda self: self.get_image_url())
     square_url      = property(lambda self: self.get_image_url('s'))
@@ -328,9 +335,28 @@ class Message(models.Model):
     A message, status update, or "tweet".
     """
     message = models.TextField()
+    links = models.ManyToManyField('ContentLink',blank=True,null=True)
     
     def __unicode__(self):
         return text.truncate_words(self.message, 30)
+
+class ContentLink(models.Model):
+    """
+    A non-resource reference to be associated with
+    a model. 
+
+    In other words, not the canonical location
+    for a resource defined by a jellyroll model, but 
+    instead a topical resource given in the resource 
+    body itself in a format that varies across model
+    type.
+
+    """
+    url = models.URLField()
+    identifier = models.CharField(max_length=128)
+
+    def __unicode__(self):
+        return self.identifier
 
 # Register item objects to be "followed"
 Item.objects.follow_model(Bookmark)

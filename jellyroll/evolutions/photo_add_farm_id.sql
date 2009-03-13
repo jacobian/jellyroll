@@ -1,0 +1,1 @@
+ALTER TABLE jellyroll_photo ADD COLUMN farm_id smallint unsigned NULL;

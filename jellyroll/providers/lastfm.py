@@ -8,8 +8,8 @@ from django.utils.functional import memoize
 from django.utils.http import urlquote
 from django.utils.encoding import smart_str, smart_unicode
 from httplib2 import HttpLib2Error
-from jellyroll.providers import utils
 from jellyroll.models import Item, Track
+from jellyroll.providers import utils
 
 #
 # API URLs
@@ -44,7 +44,12 @@ def update():
         track_name  = smart_unicode(track.find('name').text)
         track_mbid  = smart_unicode(track.find('mbid').text)
         url         = smart_unicode(track.find('url').text)
-        timestamp   = datetime.datetime.fromtimestamp(int(track.find('date').get('uts')))
+
+        # date delivered as UTC
+        timestamp = datetime.datetime.fromtimestamp(int(track.find('date').get('uts')))
+        if utils.JELLYROLL_ADJUST_DATETIME:
+            timestamp = utils.utc_to_local_timestamp(int(track.find('date').get('uts')))
+
         if not _track_exists(artist_name, track_name, timestamp):
             tags = _tags_for_track(artist_name, track_name)
             _handle_track(artist_name, artist_mbid, track_name, track_mbid, url, timestamp, tags)
