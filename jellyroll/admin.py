@@ -12,10 +12,6 @@ class ItemAdmin(admin.ModelAdmin):
 class BookmarkAdmin(admin.ModelAdmin):
     list_display = ('url', 'description')
     search_fields = ('url', 'description', 'thumbnail')
-
-class TrackAdmin(admin.ModelAdmin):
-    list_display = ('track_name', 'artist_name')
-    search_fields = ("artist_name", "track_name")
     
 class TrackAdmin(admin.ModelAdmin):
     list_display = ('track_name', 'artist_name')

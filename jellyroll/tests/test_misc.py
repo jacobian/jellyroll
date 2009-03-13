@@ -11,6 +11,8 @@ class MiscTests(unittest.TestCase):
             'jellyroll.providers.gsearch',
             'jellyroll.providers.lastfm',
             'jellyroll.providers.magnolia',
+            'jellyroll.providers.pownce',
             'jellyroll.providers.svn',
+            'jellyroll.providers.twitter',
             'jellyroll.providers.youtube',
         ])

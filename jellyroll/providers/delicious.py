@@ -16,19 +16,19 @@ class DeliciousClient(object):
     """
     A super-minimal delicious client :)
     """
-    
+
     lastcall = 0
-    
+
     def __init__(self, username, password, method='v1'):
         self.username, self.password = username, password
         self.method = method
-        
+
     def __getattr__(self, method):
         return DeliciousClient(self.username, self.password, '%s/%s' % (self.method, method))
-        
+
     def __repr__(self):
         return "<DeliciousClient: %s>" % self.method
-        
+
     def __call__(self, **params):
         # Enforce Yahoo's "no calls quicker than every 1 second" rule
         delta = time.time() - DeliciousClient.lastcall
@@ -51,7 +51,7 @@ def enabled():
                  'DELICIOUS_USERNAME and/or DELICIOUS_PASSWORD settings are '
                  'undefined.')
     return ok
-    
+
 def update():
     delicious = DeliciousClient(settings.DELICIOUS_USERNAME, settings.DELICIOUS_PASSWORD)
 
@@ -65,8 +65,9 @@ def update():
     for datenode in reversed(list(delicious.posts.dates().getiterator('date'))):
         dt = utils.parsedate(datenode.get("date"))
         if dt > last_update_date:
+            log.debug("There is a record indicating bookmarks have been added after our last update")
             _update_bookmarks_from_date(delicious, dt)
-                
+
 #
 # Private API
 #
@@ -76,16 +77,19 @@ def _update_bookmarks_from_date(delicious, dt):
     xml = delicious.posts.get(dt=dt.strftime("%Y-%m-%d"))
     for post in xml.getiterator('post'):
         info = dict((k, smart_unicode(post.get(k))) for k in post.keys())
-        log.debug("Handling bookmark of %r", info["href"])
-        _handle_bookmark(info)
+        if (info.has_key("shared") and settings.DELICIOUS_GETDNS) or (not info.has_key("shared")):
+            log.debug("Handling bookmark for %r", info["href"])
+            _handle_bookmark(info)
+        else:
+            log.debug("Skipping bookmark for %r, app settings indicate to ignore bookmarks marked \"Do Not Share\"", info["href"])
 _update_bookmarks_from_date = transaction.commit_on_success(_update_bookmarks_from_date)
 
 def _handle_bookmark(info):
     b, created = Bookmark.objects.get_or_create(
-        url         = info['href'],
+        url = info['href'],
         defaults = dict(
             description = info['description'],
-            extended    = info.get('extended', ''),
+            extended = info.get('extended', ''),
         )
     )
     if not created:
@@ -99,4 +103,3 @@ def _handle_bookmark(info):
         source = __name__,
         source_id = info['hash'],
     )
-

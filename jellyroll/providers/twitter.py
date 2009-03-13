@@ -61,7 +61,7 @@ except AttributeError:
     pass
 
 if TWITTER_TRANSFORM_MSG:
-    USER_LINK_TPL = "<a href='%s' title='%s'>%s</a>"
+    USER_LINK_TPL = '<a href="%s" title="%s">%s</a>'
     TAG_RE = re.compile(r'(?P<tag>\#\w+)')
     USER_RE = re.compile(r'(?P<username>@\w+)')
     RT_RE = re.compile(r'RT\s+(?P<username>@\w+)')
@@ -96,8 +96,7 @@ if TWITTER_TRANSFORM_MSG:
 
         # remove newlines
         message_text = message_text.replace('\n','')
-        # remove URLs referenced in message content
-        # TODO: fix ungainly code below
+        # generate link list for ContentLink
         links = [ link for link in URL_RE.findall(message_text) ]
         link_ctr = 1
         link_dict = {}
@@ -105,16 +104,20 @@ if TWITTER_TRANSFORM_MSG:
             link_dict[link.group(0)] = link_ctr
             link_ctr += 1
         generate_link_num = lambda obj: "[%d]"%link_dict[obj.group(0)]
-        message_text = URL_RE.sub(generate_link_num,message_text)
+        # remove URLs referenced in message content
+        if not hasattr(settings, 'TWITTER_REMOVE_LINKS') or settings.TWITTER_REMOVE_LINKS == True:
+        	message_text = URL_RE.sub(generate_link_num,message_text)
         # remove leading username
         message_text = USERNAME_RE.sub('',message_text)
         # check for RT-type retweet syntax
         message_text = RT_RE.sub(_transform_retweet,message_text)
         # replace @user references with links to their timeline
         message_text = USER_RE.sub(_transform_user_ref_to_link,message_text)
-        # extract defacto #tag style tweet tags
+        # generate tags list
         tags = ' '.join( [tag[1:] for tag in TAG_RE.findall(message_text)] )
-        message_text = TAG_RE.sub('',message_text)
+        # extract defacto #tag style tweet tags
+        if not hasattr(settings, 'TWITTER_REMOVE_TAGS') or settings.TWITTER_REMOVE_TAGS == True:
+            message_text = TAG_RE.sub('',message_text)
 
         return (message_text.strip(),links,tags)
 

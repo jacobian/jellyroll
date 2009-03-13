@@ -22,7 +22,7 @@ class RenderTagTest(TagTestCase):
     def testRenderSimple(self):
         i = Item.objects.get(pk=1)
         o = self.renderTemplate("{% load jellyroll %}{% jellyrender i %}", i=i)
-        self.assert_(o.startswith('<div class="jellyroll-item">'), o)
+        self.assert_(o.startswith('<div class="jellyroll-item'), o)
         
     def testRenderUsing(self):
         i = Item.objects.get(pk=1)
