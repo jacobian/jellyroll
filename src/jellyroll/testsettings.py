@@ -10,6 +10,14 @@ JELLYROLL_PROVIDERS = ['jellyroll.providers.%s' % p[:-3]
                        for p in os.listdir(os.path.join(BASE, 'providers'))
                        if p.endswith('.py') and not p.startswith('_')]
 
+# Jellyroll username auth creds. This is all fake; the test suite mocks all
+# the APIs anyway.
+DELICIOUS_USERNAME = FLICKR_USERNAME = GOOGLE_USERNAME = LASTFM_USERNAME \
+                   = TWITTER_USERNAME = YOUTUBE_USERNAME = 'jellyroll'
+DELICIOUS_PASSWORD = GOOGLE_PASSWORD = 'password'
+FLICKR_API_KEY = 'apikey'
+FLICKR_USER_ID = 'userid'
+
 # Silence logging
 import logging
 
