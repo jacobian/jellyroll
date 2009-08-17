@@ -20,7 +20,7 @@ setup(
     
     install_requires = [
         'django-tagging==0.3pre',
-        'Django>=1.0',
+        'Django>=1.1',
         'PIL',
         'python-dateutil',
         'pytz==2009e',
