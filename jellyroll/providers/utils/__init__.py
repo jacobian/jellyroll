@@ -7,7 +7,7 @@ from django.conf import settings
 from anyetree import etree
 
 DEFAULT_HTTP_HEADERS = {
-    "User-Agent" : "Jellyroll/1.0 (http://code.google.com/p/jellyroll)"
+    "User-Agent" : "Jellyroll/1.0 (http://github.com/jacobian/jellyroll/tree/master)"
 }
 
 #

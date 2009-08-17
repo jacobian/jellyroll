@@ -11,6 +11,17 @@ Optional
 
 * pytz (1)
 
+Installation
+------------
+You need to set up which providers you are going to use, e.g.
+
+::
+
+  JELLYROLL_PROVIDERS = (
+      'jellyroll.providers.delicious',
+      'jellyroll.providers.flickr',
+  )
+
 Notes
 -----
 
