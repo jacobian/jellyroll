@@ -25,7 +25,6 @@ def active_providers():
                 mod = __import__(p, '', '', [''])
             except ImportError, e:
                 log.error("Couldn't import provider %r: %s" % (p, e))
-                raise
             if mod.enabled():
                 providers[p] = mod
     return providers
