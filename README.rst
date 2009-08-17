@@ -12,8 +12,9 @@ Required by setup.py:
 Optional
 --------
 
-* XXX (for git support)
+* GitPython (for Git support)
 * pysvn (for SVN support)
+* feedparser (for YouTube support)
 
 Installation
 ------------
