@@ -1,18 +1,23 @@
 Prerequisites
 -------------
 
-* Django 1.0
-* PIL
-* dateutil
-* django-tagging, SVN r149+
+Required by setup.py:
+
+    * django-tagging (0.3pre)
+    * Django 1.0+
+    * PIL
+    * python-dateutil
+    * pytz
 
 Optional
 --------
 
-* pytz (1)
+* XXX (for git support)
+* pysvn (for SVN support)
 
 Installation
 ------------
+
 You need to set up which providers you are going to use, e.g.
 
 ::
@@ -21,14 +26,3 @@ You need to set up which providers you are going to use, e.g.
       'jellyroll.providers.delicious',
       'jellyroll.providers.flickr',
   )
-
-Notes
------
-
-1. pytz is included in order to support date translation of providers whose sources
-   do not syndicate item dates in your local timezone (typically these services have
-   settings for which you can specify your timezone). These services currently include:
-
-  * gitscm (stores all dates UTC as time_struct)
-  * lastfm (publishes all dates in RSS as UTC timestamp)
-  * twitter (publishes all dates in RSS as UTC string)
