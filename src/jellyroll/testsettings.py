@@ -6,9 +6,7 @@ DATABASE_ENGINE = 'sqlite3'
 DATABASE_NAME = '/tmp/jellyroll.db'
 INSTALLED_APPS = ['django.contrib.contenttypes', 'tagging', 'jellyroll']
 
-JELLYROLL_PROVIDERS = ['jellyroll.providers.%s' % p[:-3]
-                       for p in os.listdir(os.path.join(BASE, 'providers'))
-                       if p.endswith('.py') and not p.startswith('_')]
+JELLYROLL_PROVIDERS = ['jellyroll.providers.*']
 
 # Jellyroll username auth creds. This is all fake; the test suite mocks all
 # the APIs anyway.
