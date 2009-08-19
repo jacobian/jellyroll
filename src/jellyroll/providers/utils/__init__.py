@@ -4,7 +4,7 @@ import dateutil.tz
 from django.utils import simplejson
 from django.utils.encoding import force_unicode
 from django.conf import settings
-from anyetree import etree
+from jellyroll.providers.utils.anyetree import etree
 
 DEFAULT_HTTP_HEADERS = {
     "User-Agent" : "Jellyroll/1.0 (http://github.com/jacobian/jellyroll/tree/master)"
