@@ -323,12 +323,12 @@ class CodeCommit(models.Model):
             return str(int(self.revision))
         except ValueError:
             return self.revision[:7]
-
+    
+    @property
     def url(self):
         if self.repository.public_changeset_template:
             return self.repository.public_changeset_template % self.revision
         return ""
-    url = property(url)
     
 class Message(models.Model):
     """
@@ -358,6 +358,24 @@ class ContentLink(models.Model):
     def __unicode__(self):
         return self.identifier
 
+class Location(models.Model):
+    """
+    Where you are at a given moment in time.
+    """
+    latitude = models.DecimalField(max_digits=10, decimal_places=6)
+    longitude = models.DecimalField(max_digits=10, decimal_places=6)
+    name = models.CharField(max_length=200, blank=True)
+    
+    def __unicode__(self):
+        if self.name:
+            return self.name
+        else:
+            return "(%s, %s)" % (self.longitude, self.latitude)
+            
+    @property
+    def url(self):
+        return "http://maps.google.com/maps?q=%s,%s" % (self.longitude, self.latitude)
+        
 # Register item objects to be "followed"
 Item.objects.follow_model(Bookmark)
 Item.objects.follow_model(Track)
@@ -366,3 +384,4 @@ Item.objects.follow_model(WebSearch)
 Item.objects.follow_model(Video)
 Item.objects.follow_model(CodeCommit)
 Item.objects.follow_model(Message)
+Item.objects.follow_model(Location)

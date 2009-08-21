@@ -11,7 +11,8 @@ JELLYROLL_PROVIDERS = ['jellyroll.providers.*']
 # Jellyroll username auth creds. This is all fake; the test suite mocks all
 # the APIs anyway.
 DELICIOUS_USERNAME = FLICKR_USERNAME = GOOGLE_USERNAME = LASTFM_USERNAME \
-                   = TWITTER_USERNAME = YOUTUBE_USERNAME = 'jellyroll'
+                   = TWITTER_USERNAME = YOUTUBE_USERNAME \
+                   = GOOGLE_LATITUDE_USER_ID = 'jellyroll'
 DELICIOUS_PASSWORD = GOOGLE_PASSWORD = 'password'
 FLICKR_API_KEY = 'apikey'
 FLICKR_USER_ID = 'userid'
