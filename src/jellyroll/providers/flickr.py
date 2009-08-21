@@ -7,11 +7,6 @@ from django.utils.encoding import smart_unicode
 from jellyroll.models import Item, Photo
 from jellyroll.providers import utils
 
-try:
-    set
-except NameError:
-    from sets import Set as set     # Python 2.3 fallback
-
 log = logging.getLogger("jellyroll.providers.flickr")
 
 #

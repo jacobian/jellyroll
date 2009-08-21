@@ -34,9 +34,9 @@ class DeliciousClientTests(unittest.TestCase):
 #    
 # Fake delicious client that mocks all the calls update() makes.
 #
-def xml(s):
-    """Quick 'n' dirty XML etree maker"""
-    return etree.fromstring(s.strip())
+
+# Quick 'n' dirty XML etree maker
+xml = lambda s: etree.fromstring(s.strip())
 
 FakeClient = mock.Mock()
 
