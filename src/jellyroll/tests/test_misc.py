@@ -10,6 +10,7 @@ class MiscTests(unittest.TestCase):
             'jellyroll.providers.gitscm',
             'jellyroll.providers.gsearch',
             'jellyroll.providers.lastfm',
+            'jellyroll.providers.latitude',
             'jellyroll.providers.svn',
             'jellyroll.providers.twitter',
             'jellyroll.providers.youtube',
