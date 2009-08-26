@@ -41,7 +41,8 @@ def _update_location(user_id, since):
     lat, lng = map(str, feature['geometry']['coordinates'])
     name = feature['properties']['reverseGeocode']
     timestamp = datetime.datetime.fromtimestamp(feature['properties']['timeStamp'])
-    if timestamp > since:    
+    if timestamp > since:
+        log.debug("New location: %s", name)
         loc = Location(latitude=lat, longitude=lng, name=name)
         return Item.objects.create_or_update(
             instance = loc,
