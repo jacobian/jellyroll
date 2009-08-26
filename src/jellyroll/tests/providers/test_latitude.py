@@ -41,7 +41,14 @@ class LatitudeProviderTests(TestCase):
         latitude.update()
         items = Item.objects.filter(content_type__model='location').order_by('-timestamp')        
         loc = items[0].object
-        self.assertEqual(loc.longitude, decimal.Decimal('-95.260607'))
-        self.assertEqual(loc.latitude, decimal.Decimal('38.942639'))
+        self.assertEqual(loc.latitude, decimal.Decimal('-95.260607'))
+        self.assertEqual(loc.longitude, decimal.Decimal('38.942639'))
         self.assertEqual(loc.name, "Lawrence, KS, USA")
         
+    @mock.patch('jellyroll.providers.utils.getjson', mock_getjson)
+    def test_update_no_duplicates(self):
+        """Multiple updates shouldn't return duplicates."""
+        latitude.update()
+        latitude.update()
+        items = Item.objects.filter(content_type__model='location')
+        self.assertEqual(len(items), 1)

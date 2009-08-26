@@ -5,10 +5,11 @@ Requires that you've turned on public location at
 http://www.google.com/latitude/apps/badge.
 """
 
+import datetime
 import logging
 from django.conf import settings
 from django.db import transaction
-from jellyroll.models import Location
+from jellyroll.models import Location, Item
 from jellyroll.providers import utils
 
 log = logging.getLogger("jellyroll.providers.latitude")
@@ -24,15 +25,27 @@ def enabled():
     return ok
 
 def update():
-    _update_location(settings.GOOGLE_LATITUDE_USER_ID)
+    last_update_date = Item.objects.get_last_update_of_model(Location)
+    log.debug("Last update date: %s", last_update_date)
+    _update_location(settings.GOOGLE_LATITUDE_USER_ID, since=last_update_date)
         
 #
 # Private API
 #
 
 @transaction.commit_on_success
-def _update_location(user_id):
+def _update_location(user_id, since):
     json = utils.getjson('http://www.google.com/latitude/apps/badge/api?user=%s&type=json' % user_id)
-    lng, lat = map(str, json['features'][0]['geometry']['coordinates'])
-    name = json['features'][0]['properties']['reverseGeocode']
-    Location.objects.create(latitude=lat, longitude=lng, name=name)
+    feature = json['features'][0]
+    
+    lat, lng = map(str, feature['geometry']['coordinates'])
+    name = feature['properties']['reverseGeocode']
+    timestamp = datetime.datetime.fromtimestamp(feature['properties']['timeStamp'])
+    if timestamp > since:    
+        loc = Location(latitude=lat, longitude=lng, name=name)
+        return Item.objects.create_or_update(
+            instance = loc,
+            timestamp = timestamp,
+            source = __name__,
+            source_id = str(feature['properties']['timeStamp']),
+        )
