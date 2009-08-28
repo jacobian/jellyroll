@@ -4,10 +4,11 @@ Prerequisites
 Required by setup.py:
 
     * django-tagging (0.3pre)
-    * Django 1.0+
+    * Django 1.1+
     * PIL
     * python-dateutil
     * pytz
+    * httplib2
 
 Optional
 --------
