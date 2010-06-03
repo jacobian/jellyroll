@@ -1,4 +1,4 @@
-import md5
+import hashlib
 import datetime
 import logging
 import dateutil
@@ -159,7 +159,7 @@ def _handle_status(message_text, url, timestamp):
             t.links.add(l)
 
 def _source_id(message_text, url, timestamp):
-    return md5.new(smart_str(message_text) + smart_str(url) + str(timestamp)).hexdigest()
+    return hashlib.md5(smart_str(message_text) + smart_str(url) + str(timestamp)).hexdigest()
     
 def _status_exists(message_text, url, timestamp):
     id = _source_id(message_text, url, timestamp)

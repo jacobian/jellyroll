@@ -1,5 +1,5 @@
-import md5
 import datetime
+import hashlib
 import logging
 from django.conf import settings
 from django.db import transaction
@@ -116,7 +116,7 @@ def _handle_track(artist_name, artist_mbid, track_name, track_mbid, url, timesta
         )
         
 def _source_id(artist_name, track_name, timestamp):
-    return md5.new(smart_str(artist_name) + smart_str(track_name) + str(timestamp)).hexdigest()
+    return hashlib.md5(smart_str(artist_name) + smart_str(track_name) + str(timestamp)).hexdigest()
     
 def _track_exists(artist_name, track_name, timestamp):
     id = _source_id(artist_name, track_name, timestamp)
