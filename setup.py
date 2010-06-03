@@ -19,14 +19,13 @@ setup(
     package_dir = {'': 'src'},
     
     install_requires = [
-        'django-tagging==0.3pre',
-        'Django>=1.1',
+        'django-tagging >= 0.3.1, < 0.4',
+        'Django >= 1.1',
         'PIL',
         'python-dateutil',
-        'pytz==2009e',
+        'pytz == 2009e',
         'setuptools',
     ],
-    dependency_links = ['http://pypi.pinaxproject.com/'],
 
     classifiers = [
         'Development Status :: 4 - Beta',

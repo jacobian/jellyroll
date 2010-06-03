@@ -44,10 +44,10 @@ class Item(models.Model):
     def __cmp__(self, other):
         return cmp(self.timestamp, other.timestamp)
     
-    def save(self, force_insert=False, force_update=False):
+    def save(self, *args, **kwargs):
         ct = "%s_%s" % (self.content_type.app_label, self.content_type.model.lower())
         self.object_str = smart_unicode(self.object)
-        super(Item, self).save(force_insert, force_update)
+        super(Item, self).save(*args, **kwargs)
 
 class Bookmark(models.Model):
     """
